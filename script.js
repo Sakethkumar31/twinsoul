@@ -3,8 +3,11 @@ const nav = document.querySelector(".site-nav");
 const year = document.getElementById("year");
 const form = document.getElementById("quote-form");
 const note = document.getElementById("form-note");
-const filterButtons = document.querySelectorAll(".filter-btn");
-const galleryCards = document.querySelectorAll(".gallery-grid .art-card");
+const gallerySource = document.getElementById("gallery-source");
+const galleryPostsGrid = document.getElementById("gallery-posts-grid");
+const galleryReelsGrid = document.getElementById("gallery-reels-grid");
+const galleryPostsGroup = document.getElementById("gallery-posts-group");
+const galleryReelsGroup = document.getElementById("gallery-reels-group");
 
 function setText(id, value) {
   const node = document.getElementById(id);
@@ -173,20 +176,45 @@ if (form && note) {
   });
 }
 
-if (filterButtons.length > 0 && galleryCards.length > 0) {
-  filterButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      const filter = button.dataset.filter;
-      filterButtons.forEach((item) => item.classList.remove("active"));
-      button.classList.add("active");
+function separateGallerySections() {
+  if (!gallerySource || !galleryPostsGrid || !galleryReelsGrid) {
+    return;
+  }
 
-      galleryCards.forEach((card) => {
-        const show = filter === "all" || card.dataset.media === filter;
-        card.classList.toggle("hidden", !show);
-      });
-    });
+  const cards = Array.from(gallerySource.querySelectorAll(".art-card"));
+  if (cards.length === 0) {
+    if (galleryPostsGroup) {
+      galleryPostsGroup.classList.add("hidden");
+    }
+    if (galleryReelsGroup) {
+      galleryReelsGroup.classList.add("hidden");
+    }
+    return;
+  }
+
+  galleryPostsGrid.innerHTML = "";
+  galleryReelsGrid.innerHTML = "";
+
+  cards.forEach((card) => {
+    const clone = card.cloneNode(true);
+    clone.classList.remove("hidden");
+
+    if (card.dataset.media === "reel") {
+      galleryReelsGrid.appendChild(clone);
+    } else {
+      galleryPostsGrid.appendChild(clone);
+    }
   });
+
+  if (galleryPostsGroup) {
+    galleryPostsGroup.classList.toggle("hidden", galleryPostsGrid.children.length === 0);
+  }
+
+  if (galleryReelsGroup) {
+    galleryReelsGroup.classList.toggle("hidden", galleryReelsGrid.children.length === 0);
+  }
 }
 
+separateGallerySections();
 loadSiteContent();
 loadNotifications();

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -67,12 +67,7 @@
           <p class="eyebrow">Featured Work</p>
           <h2>Studio highlights (auto-updated from Instagram)</h2>
         </div>
-        <div class="gallery-filters" aria-label="Filter highlights">
-          <button class="filter-btn active" type="button" data-filter="all">All</button>
-          <button class="filter-btn" type="button" data-filter="photo">Photos</button>
-          <button class="filter-btn" type="button" data-filter="reel">Reels</button>
-        </div>
-        <div class="gallery-grid">
+        <div class="gallery-grid gallery-source hidden" id="gallery-source" aria-hidden="true">
           <!-- AUTO_GALLERY_START -->
           <article class="art-card" data-media="photo">
             <img class="art-media" src="assets/insta/highlight-1.jpg" alt="Twin Soul Studio Instagram post 1" loading="lazy" />
@@ -256,6 +251,22 @@
           </article>
           <!-- AUTO_GALLERY_END -->
         </div>
+        <div class="gallery-split">
+          <div class="gallery-group" id="gallery-posts-group">
+            <div class="gallery-group-head">
+              <p class="eyebrow">Posts</p>
+              <h3>Photo posts</h3>
+            </div>
+            <div class="gallery-grid" id="gallery-posts-grid"></div>
+          </div>
+          <div class="gallery-group" id="gallery-reels-group">
+            <div class="gallery-group-head">
+              <p class="eyebrow">Reels</p>
+              <h3>Video reels</h3>
+            </div>
+            <div class="gallery-grid" id="gallery-reels-grid"></div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -434,9 +445,3 @@
   <script src="script.js"></script>
 </body>
 </html>
-
-
-
-
-
-
