@@ -1,0 +1,88 @@
+{
+  "brandName": "Twin Soul Studio",
+  "brandLine": "Twin Soul Studio By KS",
+  "instagramHandle": "@twin_soulstudio",
+  "instagramUrl": "https://www.instagram.com/twin_soulstudio/",
+  "hero": {
+    "eyebrow": "Handcrafted Resin Art",
+    "title": "Statement pieces made to hold memories.",
+    "description": "From ocean-inspired trays to floral keepsakes, every TwinSoul piece is crafted with detail, clarity, and your story in mind.",
+    "primaryCtaLabel": "Book a Custom Order",
+    "primaryCtaHref": "#commissions",
+    "secondaryCtaLabel": "View Collection",
+    "secondaryCtaHref": "#gallery"
+  },
+  "heroCard": {
+    "title": "Now Taking Custom Orders",
+    "description": "Custom name plates, coasters, trays, jewelry, and wedding keepsakes.",
+    "bullets": [
+      "Fast quote turnaround: 24 hours",
+      "Worldwide shipping available",
+      "Bulk gifting options for events"
+    ]
+  },
+  "commissions": {
+    "eyebrow": "Custom Commissions",
+    "title": "Made for your moment",
+    "description": "Share your idea, color palette, and size. I will send a concept and quote before production starts. A 50% advance confirms your slot.",
+    "tags": [
+      "Name Plates",
+      "Festive Hampers",
+      "Home Decor",
+      "Bridal Keepsakes"
+    ]
+  },
+  "about": {
+    "title": "About the artist",
+    "paragraphs": [
+      "I am the maker behind TwinSoul Resin Studio, blending art and utility into handmade resin pieces. Each piece is poured, cured, sanded, and finished by hand.",
+      "My focus is clean finishing, thoughtful color work, and personalized details that make every order unique."
+    ],
+    "stats": [
+      {
+        "value": "350+",
+        "label": "Orders completed"
+      },
+      {
+        "value": "4.9/5",
+        "label": "Average client rating"
+      },
+      {
+        "value": "3 yrs",
+        "label": "Crafting experience"
+      }
+    ]
+  },
+  "references": {
+    "eyebrow": "Customer Reference",
+    "title": "Proof from Instagram posts",
+    "items": [
+      {
+        "title": "Memory Frame Order",
+        "summary": "27 likes • 2 comments",
+        "href": "https://www.instagram.com/p/DVi0UG7j7RI/",
+        "ctaLabel": "Open customer post"
+      },
+      {
+        "title": "Singapore Keepsake",
+        "summary": "31 likes • 2 comments",
+        "href": "https://www.instagram.com/p/DVTsb25D8VB/",
+        "ctaLabel": "Open customer post"
+      },
+      {
+        "title": "Studio Process Reel",
+        "summary": "19 likes • 4 comments",
+        "href": "https://www.instagram.com/reel/DVMZe1Wk8-g/",
+        "ctaLabel": "Open customer reel"
+      }
+    ]
+  },
+  "contact": {
+    "eyebrow": "Let us connect",
+    "title": "Ready to order?",
+    "primaryContact": "Instagram DM",
+    "responseTime": "usually within 24 hours",
+    "ctaLabel": "DM on Instagram",
+    "ctaHref": "https://www.instagram.com/twin_soulstudio/"
+  }
+}

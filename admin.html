@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Twin Soul Studio Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Mulish:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body>
+  <main class="admin-shell">
+    <section class="login-panel" id="login-panel">
+      <div class="panel-card narrow">
+        <img class="admin-logo" src="assets/logo-main.png" alt="Twin Soul Studio logo" />
+        <p class="eyebrow">Admin Access</p>
+        <h1>Manage Twin Soul Studio</h1>
+        <p>Use this simple dashboard to update the website, show announcements, and track customer requests.</p>
+        <form id="login-form">
+          <label>
+            Admin password
+            <input type="password" name="password" required />
+          </label>
+          <button type="submit">Sign in</button>
+          <p class="status-note" id="login-note"></p>
+        </form>
+      </div>
+    </section>
+
+    <section class="dashboard hidden" id="dashboard">
+      <header class="admin-header">
+        <div class="admin-header-copy">
+          <img class="admin-logo admin-logo-small" src="assets/logo-main.png" alt="Twin Soul Studio logo" />
+          <div>
+          <p class="eyebrow">Business Control Panel</p>
+          <h1>Twin Soul Studio Admin</h1>
+          <p class="subtle" id="password-warning"></p>
+          </div>
+        </div>
+        <div class="header-actions">
+          <a class="secondary-btn action-link" href="/" target="_blank" rel="noopener noreferrer">View website</a>
+          <button class="secondary-btn" id="logout-btn" type="button">Logout</button>
+        </div>
+      </header>
+
+      <section class="overview-grid">
+        <article class="overview-card">
+          <span class="overview-label">Website sections</span>
+          <strong id="overview-sections">0</strong>
+          <p>Edit homepage text without touching code.</p>
+        </article>
+        <article class="overview-card">
+          <span class="overview-label">Active banners</span>
+          <strong id="overview-notifications">0</strong>
+          <p>Announcements visible to visitors right now.</p>
+        </article>
+        <article class="overview-card">
+          <span class="overview-label">New inquiries</span>
+          <strong id="overview-inquiries">0</strong>
+          <p>Customer requests waiting for response.</p>
+        </article>
+      </section>
+
+      <nav class="section-nav" aria-label="Admin sections">
+        <a href="#content-panel">Website text</a>
+        <a href="#notifications-panel">Announcements</a>
+        <a href="#inquiries-panel">Customer requests</a>
+      </nav>
+
+      <div class="dashboard-grid">
+        <section class="panel-card" id="content-panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Step 1</p>
+              <h2>Edit website text</h2>
+              <p class="helper-copy">Update the main website text your customers see. Press save when finished.</p>
+            </div>
+            <button id="save-content-btn" type="button">Save content</button>
+          </div>
+          <form id="content-form" class="stack-form">
+            <div class="two-col">
+              <label>Studio name<input name="brandName" required /></label>
+              <label>Small brand line<input name="brandLine" required /></label>
+            </div>
+            <div class="two-col">
+              <label>Instagram handle<input name="instagramHandle" required /></label>
+              <label>Instagram URL<input name="instagramUrl" required /></label>
+            </div>
+
+            <h3>Top banner section</h3>
+            <label>Small top line<input name="heroEyebrow" /></label>
+            <label>Main heading<input name="heroTitle" /></label>
+            <label>Short description<textarea name="heroDescription" rows="3"></textarea></label>
+            <div class="two-col">
+              <label>Main button text<input name="heroPrimaryLabel" /></label>
+              <label>Main button link<input name="heroPrimaryHref" /></label>
+            </div>
+            <div class="two-col">
+              <label>Second button text<input name="heroSecondaryLabel" /></label>
+              <label>Second button link<input name="heroSecondaryHref" /></label>
+            </div>
+
+            <h3>Order highlight card</h3>
+            <label>Card heading<input name="heroCardTitle" /></label>
+            <label>Card description<textarea name="heroCardDescription" rows="2"></textarea></label>
+            <div class="repeat-wrap">
+              <div class="repeat-head">
+                <h4>Card bullet points</h4>
+                <button type="button" class="secondary-btn" data-add-row="hero-bullets">Add point</button>
+              </div>
+              <div id="hero-bullets" class="repeat-list"></div>
+            </div>
+
+            <h3>Custom orders section</h3>
+            <label>Small top line<input name="commissionsEyebrow" /></label>
+            <label>Section heading<input name="commissionsTitle" /></label>
+            <label>Section description<textarea name="commissionsDescription" rows="3"></textarea></label>
+            <div class="repeat-wrap">
+              <div class="repeat-head">
+                <h4>Service tags</h4>
+                <button type="button" class="secondary-btn" data-add-row="commission-tags">Add tag</button>
+              </div>
+              <div id="commission-tags" class="repeat-list"></div>
+            </div>
+
+            <h3>About section</h3>
+            <label>About heading<input name="aboutTitle" /></label>
+            <div class="repeat-wrap">
+              <div class="repeat-head">
+                <h4>About paragraphs</h4>
+                <button type="button" class="secondary-btn" data-add-row="about-paragraphs">Add paragraph</button>
+              </div>
+              <div id="about-paragraphs" class="repeat-list"></div>
+            </div>
+            <div class="repeat-wrap">
+              <div class="repeat-head">
+                <h4>Quick stats</h4>
+                <button type="button" class="secondary-btn" data-add-row="about-stats">Add stat</button>
+              </div>
+              <div id="about-stats" class="repeat-list"></div>
+            </div>
+
+            <h3>Customer proof section</h3>
+            <label>Small top line<input name="referencesEyebrow" /></label>
+            <label>Section heading<input name="referencesTitle" /></label>
+            <div class="repeat-wrap">
+              <div class="repeat-head">
+                <h4>Reference cards</h4>
+                <button type="button" class="secondary-btn" data-add-row="references-list">Add card</button>
+              </div>
+              <div id="references-list" class="repeat-list"></div>
+            </div>
+
+            <h3>Contact section</h3>
+            <label>Small top line<input name="contactEyebrow" /></label>
+            <label>Contact heading<input name="contactTitle" /></label>
+            <div class="two-col">
+              <label>Primary contact<input name="contactPrimaryContact" /></label>
+              <label>Response time<input name="contactResponseTime" /></label>
+            </div>
+            <div class="two-col">
+              <label>CTA label<input name="contactCtaLabel" /></label>
+              <label>CTA link<input name="contactCtaHref" /></label>
+            </div>
+
+            <p class="status-note" id="content-note"></p>
+          </form>
+        </section>
+
+        <section class="panel-card" id="notifications-panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Step 2</p>
+              <h2>Manage announcements</h2>
+              <p class="helper-copy">These appear at the top of the website as notice banners.</p>
+            </div>
+            <button id="save-notifications-btn" type="button">Save notifications</button>
+          </div>
+          <div class="repeat-wrap">
+            <div class="repeat-head">
+                <h4>Banner messages</h4>
+                <button type="button" class="secondary-btn" data-add-row="notifications-list">Add notification</button>
+              </div>
+              <div id="notifications-list" class="repeat-list"></div>
+            </div>
+          <p class="status-note" id="notifications-note"></p>
+        </section>
+
+        <section class="panel-card full-span" id="inquiries-panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Step 3</p>
+              <h2>Customer requests</h2>
+              <p class="helper-copy">When someone fills the form on the website, it appears here automatically.</p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="inquiry-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Product</th>
+                  <th>Details</th>
+                  <th>Status</th>
+                  <th>Received</th>
+                </tr>
+              </thead>
+              <tbody id="inquiries-body"></tbody>
+            </table>
+          </div>
+          <p class="status-note" id="inquiries-note"></p>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <template id="single-row-template">
+    <div class="repeat-row">
+      <input data-field="value" />
+      <button type="button" class="danger-btn" data-remove-row>Remove</button>
+    </div>
+  </template>
+
+  <template id="stat-row-template">
+    <div class="repeat-row two-input">
+      <input data-field="value" placeholder="Value" />
+      <input data-field="label" placeholder="Label" />
+      <button type="button" class="danger-btn" data-remove-row>Remove</button>
+    </div>
+  </template>
+
+  <template id="reference-row-template">
+    <div class="repeat-row stack-row">
+      <div class="three-col">
+        <input data-field="title" placeholder="Title" />
+        <input data-field="summary" placeholder="Summary" />
+        <input data-field="ctaLabel" placeholder="CTA label" />
+      </div>
+      <div class="two-col">
+        <input data-field="href" placeholder="Link" />
+        <button type="button" class="danger-btn" data-remove-row>Remove</button>
+      </div>
+    </div>
+  </template>
+
+  <template id="notification-row-template">
+    <div class="repeat-row stack-row">
+      <input data-field="message" placeholder="Banner message" />
+      <div class="three-col">
+        <select data-field="tone">
+          <option value="info">Info</option>
+          <option value="success">Success</option>
+          <option value="warning">Warning</option>
+        </select>
+        <label class="checkbox-label"><input type="checkbox" data-field="active" />Active</label>
+        <button type="button" class="danger-btn" data-remove-row>Remove</button>
+      </div>
+    </div>
+  </template>
+
+  <script src="admin.js"></script>
+</body>
+</html>

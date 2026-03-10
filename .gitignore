@@ -1,0 +1,9 @@
+node_modules/
+.DS_Store
+Thumbs.db
+ig_cookies.txt
+tmp_comments.json
+tmp_comments2.json
+tmp_post.html
+insta_profile.html
+insta_profile.json

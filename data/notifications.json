@@ -1,0 +1,9 @@
+[
+  {
+    "id": "welcome-note",
+    "message": "Custom order slots are open this month. Use the quote form or DM on Instagram.",
+    "tone": "info",
+    "active": true,
+    "createdAt": "2026-03-10T06:25:49.784Z"
+  }
+]

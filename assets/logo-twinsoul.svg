@@ -1,0 +1,20 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 220" role="img" aria-labelledby="title desc">
+  <title id="title">Twin Soul Studio Logo</title>
+  <desc id="desc">Resin drop inspired monogram logo for Twin Soul Studio</desc>
+  <defs>
+    <linearGradient id="drop" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#7ff3ff"/>
+      <stop offset="45%" stop-color="#5f8cff"/>
+      <stop offset="100%" stop-color="#f9b8d0"/>
+    </linearGradient>
+    <linearGradient id="metal" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#f9e7b5"/>
+      <stop offset="100%" stop-color="#c99b3d"/>
+    </linearGradient>
+  </defs>
+  <rect width="220" height="220" rx="56" fill="#0f1d2a"/>
+  <path d="M110 24c34 28 54 52 54 83 0 30-24 54-54 54s-54-24-54-54c0-31 20-55 54-83z" fill="url(#drop)" opacity="0.95"/>
+  <path d="M110 52c-22 18-34 33-34 52 0 19 15 34 34 34s34-15 34-34c0-19-12-34-34-52z" fill="#ffffff" opacity="0.22"/>
+  <path d="M72 167h76" stroke="url(#metal)" stroke-width="8" stroke-linecap="round"/>
+  <text x="110" y="188" text-anchor="middle" font-size="28" font-family="Georgia, serif" fill="url(#metal)">TS</text>
+</svg>

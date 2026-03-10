@@ -1,0 +1,442 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Handmade resin artworks, custom commissions, and decor pieces. Explore the collection and order custom resin art." />
+  <title>TwinSoul Resin Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Mulish:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="notification-bar hidden" id="notification-bar">
+    <div class="container notification-wrap" id="notification-list"></div>
+  </div>
+  <header class="site-header" id="top">
+    <div class="container nav-wrap">
+      <a class="brand" href="#top">
+        <picture>
+          <source srcset="assets/logo-main.png" type="image/png" />
+          <img class="brand-logo" src="assets/logo-twinsoul.svg" alt="Twin Soul Studio logo" />
+        </picture>
+        <span class="brand-text" id="brand-name">Twin Soul Studio</span>
+      </a>
+      <button class="menu-toggle" aria-label="Toggle navigation" aria-expanded="false">Menu</button>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="#gallery">Gallery</a>
+        <a href="#instagram">Instagram</a>
+        <a href="#commissions">Commissions</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow" id="hero-eyebrow">Handcrafted Resin Art</p>
+          <h1 id="hero-title">Statement pieces made to hold memories.</h1>
+          <p id="hero-description">
+            From ocean-inspired trays to floral keepsakes, every TwinSoul piece is crafted with detail,
+            clarity, and your story in mind.
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#commissions" id="hero-primary-cta">Book a Custom Order</a>
+            <a class="btn btn-ghost" href="#gallery" id="hero-secondary-cta">View Collection</a>
+          </div>
+        </div>
+        <div class="hero-card">
+          <h2 id="hero-card-title">Now Taking Custom Orders</h2>
+          <p id="hero-card-description">Custom name plates, coasters, trays, jewelry, and wedding keepsakes.</p>
+          <ul id="hero-card-bullets">
+            <li>Fast quote turnaround: 24 hours</li>
+            <li>Worldwide shipping available</li>
+            <li>Bulk gifting options for events</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="gallery">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow">Featured Work</p>
+          <h2>Studio highlights (auto-updated from Instagram)</h2>
+        </div>
+        <div class="gallery-filters" aria-label="Filter highlights">
+          <button class="filter-btn active" type="button" data-filter="all">All</button>
+          <button class="filter-btn" type="button" data-filter="photo">Photos</button>
+          <button class="filter-btn" type="button" data-filter="reel">Reels</button>
+        </div>
+        <div class="gallery-grid">
+          <!-- AUTO_GALLERY_START -->
+          <article class="art-card" data-media="photo">
+            <img class="art-media" src="assets/insta/highlight-1.jpg" alt="Twin Soul Studio Instagram post 1" loading="lazy" />
+            <div class="card-tags">
+              <span class="badge badge-type">Photo</span>
+              <span class="badge badge-source">Instagram</span>
+            </div>
+            <h3>Instagram Post #1</h3>
+            <p>A frame that shines like a mirror and holds memories forever ✨❤️  This handmade heart resin frame is crafted w...</p>
+            <div class="card-metrics">
+              <span><strong>27</strong> likes</span>
+              <span><strong>2</strong> comments</span>
+            </div>
+            <p class="comment-inline">Recent comments from Instagram: <strong>2</strong></p>
+            <a class="meta-link" href="https://www.instagram.com/p/DVi0UG7j7RI/" target="_blank" rel="noopener noreferrer">View on Instagram</a>
+          </article>
+          <article class="art-card" data-media="photo">
+            <img class="art-media" src="assets/insta/highlight-2.jpg" alt="Twin Soul Studio Instagram post 2" loading="lazy" />
+            <div class="card-tags">
+              <span class="badge badge-type">Photo</span>
+              <span class="badge badge-source">Instagram</span>
+            </div>
+            <h3>Instagram Post #2</h3>
+            <p>♏ Scorpio Zodiac Resin Keychain  For the bold, passionate, and mysterious Scorpio souls 🦂✨ Carry your zodiac...</p>
+            <div class="card-metrics">
+              <span><strong>18</strong> likes</span>
+              <span><strong>0</strong> comments</span>
+            </div>
+            <p class="comment-inline">Recent comments from Instagram: <strong>0</strong></p>
+            <a class="meta-link" href="https://www.instagram.com/p/DVgJdW1DwVl/" target="_blank" rel="noopener noreferrer">View on Instagram</a>
+          </article>
+          <article class="art-card" data-media="reel">
+            <img class="art-media" src="assets/insta/highlight-3.jpg" alt="Twin Soul Studio Instagram post 3" loading="lazy" />
+            <div class="card-tags">
+              <span class="badge badge-type">Reel</span>
+              <span class="badge badge-source">Instagram</span>
+            </div>
+            <h3>Instagram Post #3</h3>
+            <p>✨ Carry Your Memories Everywhere ✨  A beautiful custom resin photo keychain made with love 💜 Personalized wit...</p>
+            <div class="card-metrics">
+              <span><strong>14</strong> likes</span>
+              <span><strong>0</strong> comments</span>
+            </div>
+            <p class="comment-inline">Recent comments from Instagram: <strong>0</strong></p>
+            <a class="meta-link" href="https://www.instagram.com/reel/DVZNbaNE1GK/" target="_blank" rel="noopener noreferrer">View on Instagram</a>
+          </article>
+          <article class="art-card" data-media="photo">
+            <img class="art-media" src="assets/insta/highlight-4.jpg" alt="Twin Soul Studio Instagram post 4" loading="lazy" />
+            <div class="card-tags">
+              <span class="badge badge-type">Photo</span>
+              <span class="badge badge-source">Instagram</span>
+            </div>
+            <h3>Instagram Post #4</h3>
+            <p>💚 Agastya’s Singapore Memory 💚  Some memories are too special to stay in a phone gallery… So we preserved th...</p>
+            <div class="card-metrics">
+              <span><strong>31</strong> likes</span>
+              <span><strong>2</strong> comments</span>
+            </div>
+            <p class="comment-inline">Recent comments from Instagram: <strong>2</strong></p>
+            <a class="meta-link" href="https://www.instagram.com/p/DVTsb25D8VB/" target="_blank" rel="noopener noreferrer">View on Instagram</a>
+          </article>
+          <article class="art-card" data-media="reel">
+            <img class="art-media" src="assets/insta/highlight-5.jpg" alt="Twin Soul Studio Instagram post 5" loading="lazy" />
+            <div class="card-tags">
+              <span class="badge badge-type">Reel</span>
+              <span class="badge badge-source">Instagram</span>
+            </div>
+            <h3>Instagram Post #5</h3>
+            <p>Appudu Appudu vasthai bro 😎   Okka roju Iragateesthamu ✨</p>
+            <div class="card-metrics">
+              <span><strong>19</strong> likes</span>
+              <span><strong>4</strong> comments</span>
+            </div>
+            <p class="comment-inline">Recent comments from Instagram: <strong>4</strong></p>
+            <a class="meta-link" href="https://www.instagram.com/reel/DVMZe1Wk8-g/" target="_blank" rel="noopener noreferrer">View on Instagram</a>
+          </article>
+          <article class="art-card" data-media="photo">
+            <img class="art-media" src="assets/insta/highlight-6.jpg" alt="Twin Soul Studio Instagram post 6" loading="lazy" />
+            <div class="card-tags">
+              <span class="badge badge-type">Photo</span>
+              <span class="badge badge-source">Instagram</span>
+            </div>
+            <h3>Instagram Post #6</h3>
+            <p>Golden shimmer, delicate pearls &amp; a touch of dried floral beauty ✨ Personalised resin alphabet keychains made...</p>
+            <div class="card-metrics">
+              <span><strong>21</strong> likes</span>
+              <span><strong>0</strong> comments</span>
+            </div>
+            <p class="comment-inline">Recent comments from Instagram: <strong>0</strong></p>
+            <a class="meta-link" href="https://www.instagram.com/p/DVMYOSok8x6/" target="_blank" rel="noopener noreferrer">View on Instagram</a>
+          </article>
+          <article class="art-card" data-media="photo">
+            <img class="art-media" src="assets/insta/highlight-7.jpg" alt="Twin Soul Studio Instagram post 7" loading="lazy" />
+            <div class="card-tags">
+              <span class="badge badge-type">Photo</span>
+              <span class="badge badge-source">Instagram</span>
+            </div>
+            <h3>Instagram Post #7</h3>
+            <p>Personalised Resin Alphabet Keychain 💜✨ Handcrafted with love, gold flakes &amp; dreamy pastel shades 🌈 Carry yo...</p>
+            <div class="card-metrics">
+              <span><strong>16</strong> likes</span>
+              <span><strong>0</strong> comments</span>
+            </div>
+            <p class="comment-inline">Recent comments from Instagram: <strong>0</strong></p>
+            <a class="meta-link" href="https://www.instagram.com/p/DU8Kf9fj6cP/" target="_blank" rel="noopener noreferrer">View on Instagram</a>
+          </article>
+          <article class="art-card" data-media="photo">
+            <img class="art-media" src="assets/insta/highlight-8.jpg" alt="Twin Soul Studio Instagram post 8" loading="lazy" />
+            <div class="card-tags">
+              <span class="badge badge-type">Photo</span>
+              <span class="badge badge-source">Instagram</span>
+            </div>
+            <h3>Instagram Post #8</h3>
+            <p>One more happy client, one more beautiful frame delivered 🥹💖 Your support means everything to our small busi...</p>
+            <div class="card-metrics">
+              <span><strong>24</strong> likes</span>
+              <span><strong>0</strong> comments</span>
+            </div>
+            <p class="comment-inline">Recent comments from Instagram: <strong>0</strong></p>
+            <a class="meta-link" href="https://www.instagram.com/p/DU3uqf_CBG0/" target="_blank" rel="noopener noreferrer">View on Instagram</a>
+          </article>
+          <article class="art-card" data-media="photo">
+            <img class="art-media" src="assets/insta/highlight-9.jpg" alt="Twin Soul Studio Instagram post 9" loading="lazy" />
+            <div class="card-tags">
+              <span class="badge badge-type">Photo</span>
+              <span class="badge badge-source">Instagram</span>
+            </div>
+            <h3>Instagram Post #9</h3>
+            <p>Divine blessings in every detail ✨ This handcrafted Ganesh Ji art piece is designed for multipurpose use – per...</p>
+            <div class="card-metrics">
+              <span><strong>22</strong> likes</span>
+              <span><strong>0</strong> comments</span>
+            </div>
+            <p class="comment-inline">Recent comments from Instagram: <strong>0</strong></p>
+            <a class="meta-link" href="https://www.instagram.com/p/DUqzxLmkwdZ/" target="_blank" rel="noopener noreferrer">View on Instagram</a>
+          </article>
+          <article class="art-card" data-media="photo">
+            <img class="art-media" src="assets/insta/highlight-10.jpg" alt="Twin Soul Studio Instagram post 10" loading="lazy" />
+            <div class="card-tags">
+              <span class="badge badge-type">Photo</span>
+              <span class="badge badge-source">Instagram</span>
+            </div>
+            <h3>Instagram Post #10</h3>
+            <p>Made with patience, poured with peace 🌊  #resinart #twinsoulstudiobyks</p>
+            <div class="card-metrics">
+              <span><strong>17</strong> likes</span>
+              <span><strong>3</strong> comments</span>
+            </div>
+            <p class="comment-inline">Recent comments from Instagram: <strong>3</strong></p>
+            <a class="meta-link" href="https://www.instagram.com/p/DUYod83iMmJ/" target="_blank" rel="noopener noreferrer">View on Instagram</a>
+          </article>
+          <article class="art-card" data-media="photo">
+            <img class="art-media" src="assets/insta/highlight-11.jpg" alt="Twin Soul Studio Instagram post 11" loading="lazy" />
+            <div class="card-tags">
+              <span class="badge badge-type">Photo</span>
+              <span class="badge badge-source">Instagram</span>
+            </div>
+            <h3>Instagram Post #11</h3>
+            <p>Some memories deserve to be preserved forever 🤍 Handcrafted resin frame with pearls, florals &amp; sparkle ✨ Beca...</p>
+            <div class="card-metrics">
+              <span><strong>31</strong> likes</span>
+              <span><strong>3</strong> comments</span>
+            </div>
+            <p class="comment-inline">Recent comments from Instagram: <strong>3</strong></p>
+            <a class="meta-link" href="https://www.instagram.com/p/DUS4wPqCMjA/" target="_blank" rel="noopener noreferrer">View on Instagram</a>
+          </article>
+          <article class="art-card" data-media="photo">
+            <img class="art-media" src="assets/insta/highlight-12.jpg" alt="Twin Soul Studio Instagram post 12" loading="lazy" />
+            <div class="card-tags">
+              <span class="badge badge-type">Photo</span>
+              <span class="badge badge-source">Instagram</span>
+            </div>
+            <h3>Instagram Post #12</h3>
+            <p>Work in progress: pouring calm, shaping waves 🌊🎨  #resinart #resinartist #resinpour #epoxyresin #resinwaves...</p>
+            <div class="card-metrics">
+              <span><strong>25</strong> likes</span>
+              <span><strong>1</strong> comments</span>
+            </div>
+            <p class="comment-inline">Recent comments from Instagram: <strong>1</strong></p>
+            <a class="meta-link" href="https://www.instagram.com/p/DUObN22E6OG/" target="_blank" rel="noopener noreferrer">View on Instagram</a>
+          </article>
+          <!-- AUTO_GALLERY_END -->
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-alt" id="instagram">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow">Instagram Posts</p>
+          <h2>Latest work from @twin_soulstudio</h2>
+        </div>
+        <div class="insta-grid">
+          <article class="insta-card">
+            <a href="https://www.instagram.com/p/DVi0UG7j7RI/" target="_blank" rel="noopener noreferrer">
+              <img class="insta-thumb" src="https://instagram.fhyd14-1.fna.fbcdn.net/v/t51.82787-15/642485685_17851580754685730_1235806380385800394_n.jpg?stp=dst-jpg_e35_s1080x1080_sh0.08_tt6&_nc_ht=instagram.fhyd14-1.fna.fbcdn.net&_nc_cat=102&_nc_oc=Q6cZ2QEf2CH-GTEswU9Ind3DDjNHYl7a3iOrnp2pPqYB0AVMSnlHXrgKPNbpQqHSoSmdN8bb91SpMF6dJKBVFlddrkv_&_nc_ohc=DQJLZi6hO-cQ7kNvwHZ6AHg&_nc_gid=b6wroVdwYO8zgui34Rj16w&edm=AOQ1c0wBAAAA&ccb=7-5&oh=00_AfzzuJBx3C_a0LJmjh_QypLbWFSP52DRWNtdTuC3WKSg9w&oe=69B57E67&_nc_sid=8b3546" alt="Custom resin heart frame post" loading="lazy" />
+            </a>
+            <p>A handmade heart resin frame crafted to preserve memories.</p>
+            <a class="meta-link" href="https://www.instagram.com/p/DVi0UG7j7RI/" target="_blank" rel="noopener noreferrer">View post</a>
+          </article>
+          <article class="insta-card">
+            <a href="https://www.instagram.com/p/DVgJdW1DwVl/" target="_blank" rel="noopener noreferrer">
+              <img class="insta-thumb" src="https://instagram.fhyd14-1.fna.fbcdn.net/v/t51.82787-15/640601927_17851381887685730_5916902470124283397_n.jpg?stp=dst-jpg_e35_p1080x1080_sh0.08_tt6&_nc_ht=instagram.fhyd14-1.fna.fbcdn.net&_nc_cat=102&_nc_oc=Q6cZ2QEf2CH-GTEswU9Ind3DDjNHYl7a3iOrnp2pPqYB0AVMSnlHXrgKPNbpQqHSoSmdN8bb91SpMF6dJKBVFlddrkv_&_nc_ohc=MQ4B3gLVtMIQ7kNvwF8yzVa&_nc_gid=b6wroVdwYO8zgui34Rj16w&edm=AOQ1c0wBAAAA&ccb=7-5&oh=00_AfxGMVAf_WiVMqsSnrNgtmDvkLEkALgtclD6pRPVfq47aw&oe=69B5906B&_nc_sid=8b3546" alt="Scorpio resin keychain post" loading="lazy" />
+            </a>
+            <p>Scorpio zodiac resin keychain with bold metallic finishing.</p>
+            <a class="meta-link" href="https://www.instagram.com/p/DVgJdW1DwVl/" target="_blank" rel="noopener noreferrer">View post</a>
+          </article>
+          <article class="insta-card">
+            <a href="https://www.instagram.com/reel/DVZNbaNE1GK/" target="_blank" rel="noopener noreferrer">
+              <img class="insta-thumb" src="https://instagram.fhyd14-2.fna.fbcdn.net/v/t51.71878-15/641772789_4494981484104370_2784239194966686695_n.jpg?stp=dst-jpg_e15_tt6&_nc_ht=instagram.fhyd14-2.fna.fbcdn.net&_nc_cat=110&_nc_oc=Q6cZ2QEf2CH-GTEswU9Ind3DDjNHYl7a3iOrnp2pPqYB0AVMSnlHXrgKPNbpQqHSoSmdN8bb91SpMF6dJKBVFlddrkv_&_nc_ohc=Xt-VypJqBZgQ7kNvwHeawQ4&_nc_gid=b6wroVdwYO8zgui34Rj16w&edm=AOQ1c0wBAAAA&ccb=7-5&oh=00_Afz5GdCuk1V8w939qpjUbwlZ4YQ6swO6ad2IeK7DP1AB-Q&oe=69B578CE&_nc_sid=8b3546" alt="Custom photo keychain reel" loading="lazy" />
+            </a>
+            <p>Personalized resin photo keychain reel for memory gifting.</p>
+            <a class="meta-link" href="https://www.instagram.com/reel/DVZNbaNE1GK/" target="_blank" rel="noopener noreferrer">View reel</a>
+          </article>
+          <article class="insta-card">
+            <a href="https://www.instagram.com/p/DVTsb25D8VB/" target="_blank" rel="noopener noreferrer">
+              <img class="insta-thumb" src="https://instagram.fhyd14-1.fna.fbcdn.net/v/t51.82787-15/640507998_17850405879685730_7857449530277884825_n.jpg?stp=dst-jpg_e35_p1080x1080_sh0.08_tt6&_nc_ht=instagram.fhyd14-1.fna.fbcdn.net&_nc_cat=102&_nc_oc=Q6cZ2QEf2CH-GTEswU9Ind3DDjNHYl7a3iOrnp2pPqYB0AVMSnlHXrgKPNbpQqHSoSmdN8bb91SpMF6dJKBVFlddrkv_&_nc_ohc=PUOnKcveer4Q7kNvwE5Ntuu&_nc_gid=b6wroVdwYO8zgui34Rj16w&edm=AOQ1c0wBAAAA&ccb=7-5&oh=00_AfxVWaGX2_xTOgTB1o3b7_f-awbWPitwJOODJrfcOZj4wQ&oe=69B560B4&_nc_sid=8b3546" alt="Singapore memory resin keepsake" loading="lazy" />
+            </a>
+            <p>Custom memory keepsake designed to preserve a travel moment.</p>
+            <a class="meta-link" href="https://www.instagram.com/p/DVTsb25D8VB/" target="_blank" rel="noopener noreferrer">View post</a>
+          </article>
+          <article class="insta-card">
+            <a href="https://www.instagram.com/reel/DVMZe1Wk8-g/" target="_blank" rel="noopener noreferrer">
+              <img class="insta-thumb" src="https://instagram.fhyd14-2.fna.fbcdn.net/v/t51.71878-15/640398773_1683287319302408_8843530766650842350_n.jpg?stp=dst-jpg_e15_tt6&_nc_ht=instagram.fhyd14-2.fna.fbcdn.net&_nc_cat=108&_nc_oc=Q6cZ2QEf2CH-GTEswU9Ind3DDjNHYl7a3iOrnp2pPqYB0AVMSnlHXrgKPNbpQqHSoSmdN8bb91SpMF6dJKBVFlddrkv_&_nc_ohc=0WH7FfNFYVkQ7kNvwHx-f_s&_nc_gid=b6wroVdwYO8zgui34Rj16w&edm=AOQ1c0wBAAAA&ccb=7-5&oh=00_Afw-I0JUQNB9aRt1MqqgVdewiSKWL3EqnjdOuJn_y9VahA&oe=69B58549&_nc_sid=8b3546" alt="Behind the scenes reel" loading="lazy" />
+            </a>
+            <p>Behind-the-scenes reel from the Twin Soul Studio process.</p>
+            <a class="meta-link" href="https://www.instagram.com/reel/DVMZe1Wk8-g/" target="_blank" rel="noopener noreferrer">View reel</a>
+          </article>
+          <article class="insta-card">
+            <a href="https://www.instagram.com/p/DVMYOSok8x6/" target="_blank" rel="noopener noreferrer">
+              <img class="insta-thumb" src="https://instagram.fhyd14-1.fna.fbcdn.net/v/t51.82787-15/640416530_17849837541685730_8852585550982645557_n.jpg?stp=dst-jpg_e35_p1080x1080_sh0.08_tt6&_nc_ht=instagram.fhyd14-1.fna.fbcdn.net&_nc_cat=102&_nc_oc=Q6cZ2QEf2CH-GTEswU9Ind3DDjNHYl7a3iOrnp2pPqYB0AVMSnlHXrgKPNbpQqHSoSmdN8bb91SpMF6dJKBVFlddrkv_&_nc_ohc=8wQjw4H5PfsQ7kNvwHMGVoy&_nc_gid=b6wroVdwYO8zgui34Rj16w&edm=AOQ1c0wBAAAA&ccb=7-5&oh=00_Afy8O7MmfSLAjZ_P39Tz16PAX_d1LrIuHjUDWXWZZGdxYA&oe=69B56CA9&_nc_sid=8b3546" alt="Personalized alphabet keychain post" loading="lazy" />
+            </a>
+            <p>Golden personalized alphabet keychains with floral details.</p>
+            <a class="meta-link" href="https://www.instagram.com/p/DVMYOSok8x6/" target="_blank" rel="noopener noreferrer">View post</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-alt" id="commissions">
+      <div class="container split">
+        <div>
+          <p class="eyebrow" id="commissions-eyebrow">Custom Commissions</p>
+          <h2 id="commissions-title">Made for your moment</h2>
+          <p id="commissions-description">
+            Share your idea, color palette, and size. I will send a concept and quote before production starts.
+            A 50% advance confirms your slot.
+          </p>
+          <div class="chips" id="commissions-tags">
+            <span>Name Plates</span>
+            <span>Festive Hampers</span>
+            <span>Home Decor</span>
+            <span>Bridal Keepsakes</span>
+          </div>
+        </div>
+
+        <form class="quote-form" id="quote-form">
+          <h3>Request a Quote</h3>
+          <label>
+            Your Name
+            <input type="text" name="name" required />
+          </label>
+          <label>
+            Email
+            <input type="email" name="email" required />
+          </label>
+          <label>
+            Product Type
+            <select name="product" required>
+              <option value="">Select an option</option>
+              <option>Tray</option>
+              <option>Coasters</option>
+              <option>Clock</option>
+              <option>Jewelry</option>
+              <option>Keepsake</option>
+              <option>Other</option>
+            </select>
+          </label>
+          <label>
+            Details
+            <textarea name="details" rows="4" placeholder="Size, colors, date needed..." required></textarea>
+          </label>
+          <button class="btn btn-primary" type="submit">Send Inquiry</button>
+          <p class="form-note" id="form-note" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+
+    <section class="section" id="about">
+      <div class="container split">
+        <div class="about-card">
+          <h2 id="about-title">About the artist</h2>
+          <div id="about-paragraphs">
+            <p>
+            I am the maker behind TwinSoul Resin Studio, blending art and utility into handmade resin pieces.
+            Each piece is poured, cured, sanded, and finished by hand.
+            </p>
+            <p>
+            My focus is clean finishing, thoughtful color work, and personalized details that make every order unique.
+            </p>
+          </div>
+        </div>
+        <div class="stats" id="about-stats">
+          <div><strong>350+</strong><span>Orders completed</span></div>
+          <div><strong>4.9/5</strong><span>Average client rating</span></div>
+          <div><strong>3 yrs</strong><span>Crafting experience</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-alt" id="testimonials">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow" id="references-eyebrow">Customer Reference</p>
+          <h2 id="references-title">Proof from Instagram posts</h2>
+        </div>
+        <div class="reference-grid" id="references-list">
+          <article class="reference-card">
+            <h3>Memory Frame Order</h3>
+            <p>27 likes • 2 comments</p>
+            <a class="meta-link" href="https://www.instagram.com/p/DVi0UG7j7RI/" target="_blank" rel="noopener noreferrer">Open customer post</a>
+          </article>
+          <article class="reference-card">
+            <h3>Singapore Keepsake</h3>
+            <p>31 likes • 2 comments</p>
+            <a class="meta-link" href="https://www.instagram.com/p/DVTsb25D8VB/" target="_blank" rel="noopener noreferrer">Open customer post</a>
+          </article>
+          <article class="reference-card">
+            <h3>Studio Process Reel</h3>
+            <p>19 likes • 4 comments</p>
+            <a class="meta-link" href="https://www.instagram.com/reel/DVMZe1Wk8-g/" target="_blank" rel="noopener noreferrer">Open customer reel</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="contact">
+      <div class="container contact-wrap">
+        <div>
+          <p class="eyebrow" id="contact-eyebrow">Let us connect</p>
+          <h2 id="contact-title">Ready to order?</h2>
+          <p>Instagram: <a href="https://www.instagram.com/twin_soulstudio/" target="_blank" rel="noopener noreferrer" id="contact-instagram">@twin_soulstudio</a></p>
+          <p>Brand: <span id="contact-brand-line">Twin Soul Studio By KS</span></p>
+          <p>Primary contact: <span id="contact-primary">Instagram DM</span></p>
+          <p>Response time: <span id="contact-response">usually within 24 hours</span></p>
+        </div>
+        <a class="btn btn-primary" href="https://www.instagram.com/twin_soulstudio/" target="_blank" rel="noopener noreferrer" id="contact-cta">DM on Instagram</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-wrap">
+      <p>© <span id="year"></span> <span id="footer-brand-name">Twin Soul Studio</span>. All rights reserved.</p>
+      <a href="#top">Back to top</a>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
+
+
+
+
+
+
