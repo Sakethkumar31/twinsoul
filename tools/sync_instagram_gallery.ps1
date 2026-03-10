@@ -1,7 +1,8 @@
-﻿param(
+param(
   [string]$Username = "twin_soulstudio",
   [int]$MaxPosts = 24,
-  [string]$IndexPath = "index.html"
+  [string]$IndexPath = "index.html",
+  [int]$MaxAttempts = 5
 )
 
 $ErrorActionPreference = "Stop"
@@ -12,13 +13,104 @@ function Escape-Html {
   return $Text.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;").Replace('"', "&quot;")
 }
 
+function Get-BackoffSeconds {
+  param([int]$Attempt)
+  switch ($Attempt) {
+    1 { return 45 }
+    2 { return 120 }
+    3 { return 300 }
+    4 { return 600 }
+    default { return 900 }
+  }
+}
+
+function Invoke-InstagramRequest {
+  param(
+    [string]$Uri,
+    [hashtable]$Headers,
+    [int]$TimeoutSec,
+    [int]$Attempts
+  )
+
+  for ($attempt = 1; $attempt -le $Attempts; $attempt++) {
+    try {
+      return Invoke-RestMethod -Uri $Uri -Headers $Headers -TimeoutSec $TimeoutSec
+    } catch {
+      $statusCode = $null
+      if ($_.Exception.Response -and $_.Exception.Response.StatusCode) {
+        $statusCode = [int]$_.Exception.Response.StatusCode
+      }
+
+      if ($attempt -eq $Attempts) {
+        throw
+      }
+
+      $delay = Get-BackoffSeconds -Attempt $attempt
+      if ($statusCode -eq 429) {
+        Write-Warning "Instagram rate-limited attempt $attempt/$Attempts. Waiting $delay seconds before retry."
+      } else {
+        Write-Warning "Instagram request failed on attempt $attempt/$Attempts. Waiting $delay seconds before retry."
+      }
+      Start-Sleep -Seconds $delay
+    }
+  }
+}
+
+function Download-InstagramImage {
+  param(
+    [string]$Uri,
+    [string]$OutFile,
+    [int]$Attempts
+  )
+
+  for ($attempt = 1; $attempt -le $Attempts; $attempt++) {
+    try {
+      Invoke-WebRequest -Uri $Uri -OutFile $OutFile -TimeoutSec 30
+      return
+    } catch {
+      $statusCode = $null
+      if ($_.Exception.Response -and $_.Exception.Response.StatusCode) {
+        $statusCode = [int]$_.Exception.Response.StatusCode
+      }
+
+      if ($attempt -eq $Attempts) {
+        throw
+      }
+
+      $delay = Get-BackoffSeconds -Attempt $attempt
+      if ($statusCode -eq 429) {
+        Write-Warning "Image download rate-limited on attempt $attempt/$Attempts. Waiting $delay seconds before retry."
+      } else {
+        Write-Warning "Image download failed on attempt $attempt/$Attempts. Waiting $delay seconds before retry."
+      }
+      Start-Sleep -Seconds $delay
+    }
+  }
+}
+
 $headers = @{
   "x-ig-app-id" = "936619743392459"
   "User-Agent"  = "Mozilla/5.0"
 }
 
 $api = "https://i.instagram.com/api/v1/users/web_profile_info/?username=$Username"
-$json = Invoke-RestMethod -Uri $api -Headers $headers -TimeoutSec 30
+
+try {
+  $json = Invoke-InstagramRequest -Uri $api -Headers $headers -TimeoutSec 30 -Attempts $MaxAttempts
+} catch {
+  $statusCode = $null
+  if ($_.Exception.Response -and $_.Exception.Response.StatusCode) {
+    $statusCode = [int]$_.Exception.Response.StatusCode
+  }
+
+  if ($statusCode -eq 429) {
+    Write-Warning "Instagram sync skipped after repeated rate limits. Existing gallery remains unchanged."
+    exit 0
+  }
+
+  throw
+}
+
 $posts = $json.data.user.edge_owner_to_timeline_media.edges
 if (-not $posts) {
   throw "No posts returned for @$Username"
@@ -31,17 +123,20 @@ if (!(Test-Path $assetDir)) {
   New-Item -ItemType Directory -Path $assetDir -Force | Out-Null
 }
 
-# Remove old generated images before writing current set.
-Get-ChildItem -Path $assetDir -Filter "highlight-*.jpg" -ErrorAction SilentlyContinue | Remove-Item -Force
+$tempAssetDir = Join-Path $assetDir "_sync_tmp"
+if (Test-Path $tempAssetDir) {
+  Remove-Item -Path $tempAssetDir -Recurse -Force
+}
+New-Item -ItemType Directory -Path $tempAssetDir -Force | Out-Null
 
 $cards = New-Object System.Collections.Generic.List[string]
 $i = 1
 foreach ($edge in $posts) {
   $node = $edge.node
   $imgRel = "assets/insta/highlight-$i.jpg"
-  $imgPath = Join-Path $assetDir "highlight-$i.jpg"
+  $imgTempPath = Join-Path $tempAssetDir "highlight-$i.jpg"
 
-  Invoke-WebRequest -Uri $node.display_url -OutFile $imgPath -TimeoutSec 30
+  Download-InstagramImage -Uri $node.display_url -OutFile $imgTempPath -Attempts $MaxAttempts
 
   $postUrl = if ($node.is_video) {
     "https://www.instagram.com/reel/$($node.shortcode)/"
@@ -88,6 +183,12 @@ foreach ($edge in $posts) {
 
   $i++
 }
+
+Get-ChildItem -Path $assetDir -Filter "highlight-*.jpg" -ErrorAction SilentlyContinue | Remove-Item -Force
+Get-ChildItem -Path $tempAssetDir -Filter "highlight-*.jpg" | ForEach-Object {
+  Move-Item -Path $_.FullName -Destination (Join-Path $assetDir $_.Name) -Force
+}
+Remove-Item -Path $tempAssetDir -Recurse -Force
 
 $index = Get-Content -Raw -Path $IndexPath
 $startMarker = "<!-- AUTO_GALLERY_START -->"

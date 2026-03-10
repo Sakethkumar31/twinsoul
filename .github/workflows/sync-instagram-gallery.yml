@@ -1,23 +1,30 @@
-﻿name: Sync Instagram Gallery
+name: Sync Instagram Gallery
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 * * * *"
+    - cron: "17 */6 * * *"
 
 permissions:
   contents: write
 
+concurrency:
+  group: instagram-gallery-sync
+  cancel-in-progress: false
+
 jobs:
   sync:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Run gallery sync
         shell: pwsh
-        run: ./tools/sync_instagram_gallery.ps1 -Username twin_soulstudio -MaxPosts 24
+        run: |
+          Start-Sleep -Seconds (Get-Random -Minimum 15 -Maximum 90)
+          ./tools/sync_instagram_gallery.ps1 -Username twin_soulstudio -MaxPosts 24
 
       - name: Commit changes
         shell: bash
