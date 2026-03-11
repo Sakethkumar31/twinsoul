@@ -5,6 +5,9 @@ const path = require("path");
 const crypto = require("crypto");
 const { URL } = require("url");
 
+// Database configuration
+const { Pool } = require("pg");
+
 const PORT = Number(process.env.PORT || 3000);
 const ROOT = __dirname;
 const DATA_DIR = path.join(ROOT, "data");
@@ -19,6 +22,39 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "change-me";
 const INSTAGRAM_ACCESS_TOKEN = process.env.INSTAGRAM_ACCESS_TOKEN || "";
 const INSTAGRAM_API_URL = "https://graph.instagram.com";
 const sessions = new Map();
+
+// Database connection pool
+let pool = null;
+let isUsingDatabase = false;
+
+async function initDatabase() {
+  const DATABASE_URL = process.env.DATABASE_URL;
+  
+  if (!DATABASE_URL) {
+    console.log("DATABASE_URL not set. Using local JSON files for data storage.");
+    return false;
+  }
+  
+  try {
+    pool = new Pool({
+      connectionString: DATABASE_URL,
+      ssl: { rejectUnauthorized: false }
+    });
+    
+    // Test connection
+    const client = await pool.connect();
+    console.log("Connected to PostgreSQL database!");
+    client.release();
+    
+    isUsingDatabase = true;
+    return true;
+  } catch (error) {
+    console.log("Failed to connect to PostgreSQL:", error.message);
+    console.log("Falling back to local JSON files.");
+    pool = null;
+    return false;
+  }
+}
 
 const MIME_TYPES = {
   ".css": "text/css; charset=utf-8",
@@ -61,6 +97,89 @@ function parseCookies(cookieHeader = "") {
     }, {});
 }
 
+// Database operations (PostgreSQL)
+async function dbQuery(text, params) {
+  if (!pool) throw new Error("Database not connected");
+  const result = await pool.query(text, params);
+  return result.rows;
+}
+
+async function dbGetInquiries() {
+  return dbQuery("SELECT * FROM inquiries ORDER BY created_at DESC");
+}
+
+async function dbAddInquiry(inquiry) {
+  return dbQuery(
+    "INSERT INTO inquiries (name, email, product, details, status) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+    [inquiry.name, inquiry.email, inquiry.product, inquiry.details, inquiry.status]
+  );
+}
+
+async function dbUpdateInquiryStatus(id, status) {
+  return dbQuery("UPDATE inquiries SET status = $1 WHERE id = $2 RETURNING *", [status, id]);
+}
+
+async function dbGetGallery() {
+  return dbQuery("SELECT id, image, title, description, type, likes, comments, link, created_at as \"createdAt\" FROM gallery ORDER BY created_at DESC");
+}
+
+async function dbAddGallery(item) {
+  return dbQuery(
+    "INSERT INTO gallery (image, title, description, type, likes, comments, link) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
+    [item.image, item.title, item.description, item.type, item.likes, item.comments, item.link]
+  );
+}
+
+async function dbUpdateGallery(id, item) {
+  return dbQuery(
+    "UPDATE gallery SET image = $1, title = $2, description = $3, type = $4, likes = $5, comments = $6, link = $7 WHERE id = $8 RETURNING *",
+    [item.image, item.title, item.description, item.type, item.likes, item.comments, item.link, id]
+  );
+}
+
+async function dbDeleteGallery(id) {
+  return dbQuery("DELETE FROM gallery WHERE id = $1", [id]);
+}
+
+async function dbGetBestsellers() {
+  return dbQuery("SELECT id, title, description, price, image, category, badge, link, order_count as \"orderCount\", rating, created_at as \"createdAt\" FROM bestsellers ORDER BY created_at DESC");
+}
+
+async function dbAddBestseller(item) {
+  return dbQuery(
+    "INSERT INTO bestsellers (title, description, price, image, category, badge, link, order_count, rating) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *",
+    [item.title, item.description, item.price, item.image, item.category, item.badge, item.link, item.orderCount, item.rating]
+  );
+}
+
+async function dbUpdateBestseller(id, item) {
+  return dbQuery(
+    "UPDATE bestsellers SET title = $1, description = $2, price = $3, image = $4, category = $5, badge = $6, link = $7, order_count = $8, rating = $9 WHERE id = $10 RETURNING *",
+    [item.title, item.description, item.price, item.image, item.category, item.badge, item.link, item.orderCount, item.rating, id]
+  );
+}
+
+async function dbDeleteBestseller(id) {
+  return dbQuery("DELETE FROM bestsellers WHERE id = $1", [id]);
+}
+
+async function dbGetNotifications() {
+  return dbQuery("SELECT id, message, tone, active, created_at as \"createdAt\" FROM notifications ORDER BY created_at DESC");
+}
+
+async function dbUpdateNotifications(items) {
+  // Delete all and re-insert
+  await dbQuery("DELETE FROM notifications");
+  for (const item of items) {
+    await dbQuery(
+      "INSERT INTO notifications (message, tone, active) VALUES ($1, $2, $3)",
+      [item.message, item.tone, item.active]
+    );
+  }
+  return dbGetNotifications();
+}
+
+// Fallback file operations
 async function readJson(filePath, fallback) {
   ensureFile(filePath, fallback);
   const raw = await fsp.readFile(filePath, "utf8");
@@ -221,13 +340,41 @@ async function serveStatic(req, res, pathname) {
   }
 }
 
+async function getGalleryData() {
+  if (isUsingDatabase) {
+    return dbGetGallery();
+  }
+  return readJson(GALLERY_FILE, DEFAULT_GALLERY);
+}
+
+async function getBestsellersData() {
+  if (isUsingDatabase) {
+    return dbGetBestsellers();
+  }
+  return readJson(BESTSELLERS_FILE, DEFAULT_BESTSELLERS);
+}
+
+async function getInquiriesData() {
+  if (isUsingDatabase) {
+    return dbGetInquiries();
+  }
+  return readJson(INQUIRIES_FILE, []);
+}
+
+async function getNotificationsData() {
+  if (isUsingDatabase) {
+    return dbGetNotifications();
+  }
+  return readJson(NOTIFICATIONS_FILE, DEFAULT_NOTIFICATIONS);
+}
+
 const server = http.createServer(async (req, res) => {
   const requestUrl = new URL(req.url, `http://${req.headers.host}`);
   const pathname = requestUrl.pathname;
 
   try {
     if (req.method === "GET" && pathname === "/api/health") {
-      sendJson(res, 200, { ok: true });
+      sendJson(res, 200, { ok: true, database: isUsingDatabase });
       return;
     }
 
@@ -238,8 +385,9 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === "GET" && pathname === "/api/notifications") {
-      const notifications = await readJson(NOTIFICATIONS_FILE, DEFAULT_NOTIFICATIONS);
-      sendJson(res, 200, notifications.filter((item) => item.active));
+      const notifications = await getNotificationsData();
+      const filtered = isUsingDatabase ? notifications : notifications.filter((item) => item.active);
+      sendJson(res, 200, filtered);
       return;
     }
 
@@ -250,10 +398,15 @@ const server = http.createServer(async (req, res) => {
         return;
       }
 
-      const inquiries = await readJson(INQUIRIES_FILE, []);
-      inquiries.unshift(body);
-      await writeJson(INQUIRIES_FILE, inquiries);
-      sendJson(res, 201, { ok: true, inquiry: body });
+      if (isUsingDatabase) {
+        const result = await dbAddInquiry(body);
+        sendJson(res, 201, { ok: true, inquiry: result[0] });
+      } else {
+        const inquiries = await readJson(INQUIRIES_FILE, []);
+        inquiries.unshift(body);
+        await writeJson(INQUIRIES_FILE, inquiries);
+        sendJson(res, 201, { ok: true, inquiry: body });
+      }
       return;
     }
 
@@ -312,13 +465,11 @@ const server = http.createServer(async (req, res) => {
         return;
       }
 
-      const [siteContent, notifications, inquiries, gallery, bestsellers] = await Promise.all([
-        readJson(SITE_CONTENT_FILE, DEFAULT_SITE_CONTENT),
-        readJson(NOTIFICATIONS_FILE, DEFAULT_NOTIFICATIONS),
-        readJson(INQUIRIES_FILE, []),
-        readJson(GALLERY_FILE, DEFAULT_GALLERY),
-        readJson(BESTSELLERS_FILE, DEFAULT_BESTSELLERS)
-      ]);
+      const siteContent = await readJson(SITE_CONTENT_FILE, DEFAULT_SITE_CONTENT);
+      const notifications = await getNotificationsData();
+      const inquiries = await getInquiriesData();
+      const gallery = await getGalleryData();
+      const bestsellers = await getBestsellersData();
 
       sendJson(res, 200, { siteContent, notifications, inquiries, gallery, bestsellers });
       return;
@@ -343,8 +494,14 @@ const server = http.createServer(async (req, res) => {
 
       const body = await readBody(req);
       const notifications = normalizeNotifications(Array.isArray(body.notifications) ? body.notifications : []);
-      await writeJson(NOTIFICATIONS_FILE, notifications);
-      sendJson(res, 200, { ok: true, notifications });
+      
+      if (isUsingDatabase) {
+        const result = await dbUpdateNotifications(notifications);
+        sendJson(res, 200, { ok: true, notifications: result });
+      } else {
+        await writeJson(NOTIFICATIONS_FILE, notifications);
+        sendJson(res, 200, { ok: true, notifications });
+      }
       return;
     }
 
@@ -355,22 +512,54 @@ const server = http.createServer(async (req, res) => {
 
       const inquiryId = pathname.split("/").pop();
       const body = await readBody(req);
-      const inquiries = await readJson(INQUIRIES_FILE, []);
-      const inquiry = inquiries.find((item) => item.id === inquiryId);
-      if (!inquiry) {
-        sendJson(res, 404, { error: "Inquiry not found" });
+      
+      if (isUsingDatabase) {
+        const result = await dbUpdateInquiryStatus(inquiryId, body.status);
+        sendJson(res, 200, { ok: true, inquiry: result[0] });
+      } else {
+        const inquiries = await readJson(INQUIRIES_FILE, []);
+        const inquiry = inquiries.find((item) => item.id === inquiryId);
+        if (!inquiry) {
+          sendJson(res, 404, { error: "Inquiry not found" });
+          return;
+        }
+        inquiry.status = String(body.status || inquiry.status);
+        await writeJson(INQUIRIES_FILE, inquiries);
+        sendJson(res, 200, { ok: true, inquiry });
+      }
+      return;
+    }
+
+    // DELETE inquiry endpoint
+    if (req.method === "DELETE" && pathname.startsWith("/api/admin/inquiries/")) {
+      if (!requireAuth(req, res)) {
         return;
       }
 
-      inquiry.status = String(body.status || inquiry.status);
-      await writeJson(INQUIRIES_FILE, inquiries);
-      sendJson(res, 200, { ok: true, inquiry });
+      const inquiryId = pathname.split("/").pop();
+      
+      if (isUsingDatabase) {
+        await pool.query("DELETE FROM inquiries WHERE id = $1", [inquiryId]);
+        sendJson(res, 200, { ok: true });
+      } else {
+        const inquiries = await readJson(INQUIRIES_FILE, []);
+        const itemIndex = inquiries.findIndex((item) => item.id === inquiryId);
+        
+        if (itemIndex === -1) {
+          sendJson(res, 404, { error: "Inquiry not found" });
+          return;
+        }
+        
+        inquiries.splice(itemIndex, 1);
+        await writeJson(INQUIRIES_FILE, inquiries);
+        sendJson(res, 200, { ok: true });
+      }
       return;
     }
 
     // Gallery API endpoints
     if (req.method === "GET" && pathname === "/api/gallery") {
-      const gallery = await readJson(GALLERY_FILE, DEFAULT_GALLERY);
+      const gallery = await getGalleryData();
       sendJson(res, 200, gallery);
       return;
     }
@@ -379,7 +568,7 @@ const server = http.createServer(async (req, res) => {
       if (!requireAuth(req, res)) {
         return;
       }
-      const gallery = await readJson(GALLERY_FILE, DEFAULT_GALLERY);
+      const gallery = await getGalleryData();
       sendJson(res, 200, gallery);
       return;
     }
@@ -389,7 +578,6 @@ const server = http.createServer(async (req, res) => {
         return;
       }
       const body = await readBody(req);
-      const gallery = await readJson(GALLERY_FILE, DEFAULT_GALLERY);
       
       const newItem = {
         id: crypto.randomUUID(),
@@ -403,9 +591,15 @@ const server = http.createServer(async (req, res) => {
         createdAt: new Date().toISOString()
       };
       
-      gallery.unshift(newItem);
-      await writeJson(GALLERY_FILE, gallery);
-      sendJson(res, 201, { ok: true, item: newItem });
+      if (isUsingDatabase) {
+        const result = await dbAddGallery(newItem);
+        sendJson(res, 201, { ok: true, item: result[0] });
+      } else {
+        const gallery = await readJson(GALLERY_FILE, DEFAULT_GALLERY);
+        gallery.unshift(newItem);
+        await writeJson(GALLERY_FILE, gallery);
+        sendJson(res, 201, { ok: true, item: newItem });
+      }
       return;
     }
 
@@ -415,27 +609,37 @@ const server = http.createServer(async (req, res) => {
       }
       const itemId = pathname.split("/").pop();
       const body = await readBody(req);
-      const gallery = await readJson(GALLERY_FILE, DEFAULT_GALLERY);
-      const itemIndex = gallery.findIndex((item) => item.id === itemId);
       
-      if (itemIndex === -1) {
-        sendJson(res, 404, { error: "Gallery item not found" });
-        return;
-      }
-      
-      gallery[itemIndex] = {
-        ...gallery[itemIndex],
-        image: String(body.image || gallery[itemIndex].image).trim(),
-        title: String(body.title || gallery[itemIndex].title).trim(),
-        description: String(body.description || gallery[itemIndex].description).trim(),
-        type: ["photo", "reel"].includes(body.type) ? body.type : gallery[itemIndex].type,
-        likes: Number(body.likes) || gallery[itemIndex].likes || 0,
-        comments: Number(body.comments) || gallery[itemIndex].comments || 0,
-        link: String(body.link || gallery[itemIndex].link).trim()
+      const updatedItem = {
+        image: String(body.image || "").trim(),
+        title: String(body.title || "").trim(),
+        description: String(body.description || "").trim(),
+        type: ["photo", "reel"].includes(body.type) ? body.type : "photo",
+        likes: Number(body.likes) || 0,
+        comments: Number(body.comments) || 0,
+        link: String(body.link || "").trim()
       };
       
-      await writeJson(GALLERY_FILE, gallery);
-      sendJson(res, 200, { ok: true, item: gallery[itemIndex] });
+      if (isUsingDatabase) {
+        const result = await dbUpdateGallery(itemId, updatedItem);
+        if (result.length === 0) {
+          sendJson(res, 404, { error: "Gallery item not found" });
+          return;
+        }
+        sendJson(res, 200, { ok: true, item: result[0] });
+      } else {
+        const gallery = await readJson(GALLERY_FILE, DEFAULT_GALLERY);
+        const itemIndex = gallery.findIndex((item) => item.id === itemId);
+        
+        if (itemIndex === -1) {
+          sendJson(res, 404, { error: "Gallery item not found" });
+          return;
+        }
+        
+        gallery[itemIndex] = { ...gallery[itemIndex], ...updatedItem };
+        await writeJson(GALLERY_FILE, gallery);
+        sendJson(res, 200, { ok: true, item: gallery[itemIndex] });
+      }
       return;
     }
 
@@ -444,17 +648,23 @@ const server = http.createServer(async (req, res) => {
         return;
       }
       const itemId = pathname.split("/").pop();
-      const gallery = await readJson(GALLERY_FILE, DEFAULT_GALLERY);
-      const itemIndex = gallery.findIndex((item) => item.id === itemId);
       
-      if (itemIndex === -1) {
-        sendJson(res, 404, { error: "Gallery item not found" });
-        return;
+      if (isUsingDatabase) {
+        await dbDeleteGallery(itemId);
+        sendJson(res, 200, { ok: true });
+      } else {
+        const gallery = await readJson(GALLERY_FILE, DEFAULT_GALLERY);
+        const itemIndex = gallery.findIndex((item) => item.id === itemId);
+        
+        if (itemIndex === -1) {
+          sendJson(res, 404, { error: "Gallery item not found" });
+          return;
+        }
+        
+        gallery.splice(itemIndex, 1);
+        await writeJson(GALLERY_FILE, gallery);
+        sendJson(res, 200, { ok: true });
       }
-      
-      gallery.splice(itemIndex, 1);
-      await writeJson(GALLERY_FILE, gallery);
-      sendJson(res, 200, { ok: true });
       return;
     }
 
@@ -470,7 +680,6 @@ const server = http.createServer(async (req, res) => {
       }
       
       try {
-        // Fetch media from Instagram Basic Display API
         const mediaUrl = `${INSTAGRAM_API_URL}/me/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,like_count,comments_count&access_token=${INSTAGRAM_ACCESS_TOKEN}&limit=25`;
         
         const response = await fetch(mediaUrl);
@@ -483,14 +692,14 @@ const server = http.createServer(async (req, res) => {
           throw new Error("Invalid response from Instagram API");
         }
         
-        const gallery = await readJson(GALLERY_FILE, DEFAULT_GALLERY);
+        const gallery = await getGalleryData();
         const existingLinks = new Set(gallery.map(item => item.link));
         
         let newItemsCount = 0;
         
         for (const media of data.data) {
           if (existingLinks.has(media.permalink)) {
-            continue; // Skip if already exists
+            continue;
           }
           
           const newItem = {
@@ -505,11 +714,18 @@ const server = http.createServer(async (req, res) => {
             createdAt: media.timestamp
           };
           
-          gallery.unshift(newItem);
+          if (isUsingDatabase) {
+            await dbAddGallery(newItem);
+          } else {
+            gallery.unshift(newItem);
+          }
           newItemsCount++;
         }
         
-        await writeJson(GALLERY_FILE, gallery);
+        if (!isUsingDatabase) {
+          await writeJson(GALLERY_FILE, gallery);
+        }
+        
         sendJson(res, 200, { ok: true, message: `Added ${newItemsCount} new items from Instagram`, count: newItemsCount });
       } catch (error) {
         sendJson(res, 500, { error: error.message || "Failed to sync from Instagram" });
@@ -519,7 +735,7 @@ const server = http.createServer(async (req, res) => {
 
     // Best Sellers API endpoints
     if (req.method === "GET" && pathname === "/api/bestsellers") {
-      const bestsellers = await readJson(BESTSELLERS_FILE, DEFAULT_BESTSELLERS);
+      const bestsellers = await getBestsellersData();
       sendJson(res, 200, bestsellers);
       return;
     }
@@ -528,7 +744,7 @@ const server = http.createServer(async (req, res) => {
       if (!requireAuth(req, res)) {
         return;
       }
-      const bestsellers = await readJson(BESTSELLERS_FILE, DEFAULT_BESTSELLERS);
+      const bestsellers = await getBestsellersData();
       sendJson(res, 200, bestsellers);
       return;
     }
@@ -538,7 +754,6 @@ const server = http.createServer(async (req, res) => {
         return;
       }
       const body = await readBody(req);
-      const bestsellers = await readJson(BESTSELLERS_FILE, DEFAULT_BESTSELLERS);
       
       const newItem = {
         id: "bs-" + crypto.randomUUID().substring(0, 8),
@@ -554,9 +769,15 @@ const server = http.createServer(async (req, res) => {
         createdAt: new Date().toISOString()
       };
       
-      bestsellers.unshift(newItem);
-      await writeJson(BESTSELLERS_FILE, bestsellers);
-      sendJson(res, 201, { ok: true, item: newItem });
+      if (isUsingDatabase) {
+        const result = await dbAddBestseller(newItem);
+        sendJson(res, 201, { ok: true, item: result[0] });
+      } else {
+        const bestsellers = await readJson(BESTSELLERS_FILE, DEFAULT_BESTSELLERS);
+        bestsellers.unshift(newItem);
+        await writeJson(BESTSELLERS_FILE, bestsellers);
+        sendJson(res, 201, { ok: true, item: newItem });
+      }
       return;
     }
 
@@ -566,29 +787,39 @@ const server = http.createServer(async (req, res) => {
       }
       const itemId = pathname.split("/").pop();
       const body = await readBody(req);
-      const bestsellers = await readJson(BESTSELLERS_FILE, DEFAULT_BESTSELLERS);
-      const itemIndex = bestsellers.findIndex((item) => item.id === itemId);
       
-      if (itemIndex === -1) {
-        sendJson(res, 404, { error: "Best seller item not found" });
-        return;
-      }
-      
-      bestsellers[itemIndex] = {
-        ...bestsellers[itemIndex],
-        title: String(body.title || bestsellers[itemIndex].title).trim(),
-        description: String(body.description || bestsellers[itemIndex].description).trim(),
-        price: Number(body.price) || bestsellers[itemIndex].price || 0,
-        image: String(body.image || bestsellers[itemIndex].image).trim(),
-        category: String(body.category || bestsellers[itemIndex].category).trim(),
-        badge: String(body.badge || bestsellers[itemIndex].badge).trim(),
-        link: String(body.link || bestsellers[itemIndex].link).trim(),
-        orderCount: Number(body.orderCount) || bestsellers[itemIndex].orderCount || 0,
-        rating: Number(body.rating) || bestsellers[itemIndex].rating || 0
+      const updatedItem = {
+        title: String(body.title || "").trim(),
+        description: String(body.description || "").trim(),
+        price: Number(body.price) || 0,
+        image: String(body.image || "").trim(),
+        category: String(body.category || "").trim(),
+        badge: String(body.badge || "Best Seller").trim(),
+        link: String(body.link || "").trim(),
+        orderCount: Number(body.orderCount) || 0,
+        rating: Number(body.rating) || 0
       };
       
-      await writeJson(BESTSELLERS_FILE, bestsellers);
-      sendJson(res, 200, { ok: true, item: bestsellers[itemIndex] });
+      if (isUsingDatabase) {
+        const result = await dbUpdateBestseller(itemId, updatedItem);
+        if (result.length === 0) {
+          sendJson(res, 404, { error: "Best seller item not found" });
+          return;
+        }
+        sendJson(res, 200, { ok: true, item: result[0] });
+      } else {
+        const bestsellers = await readJson(BESTSELLERS_FILE, DEFAULT_BESTSELLERS);
+        const itemIndex = bestsellers.findIndex((item) => item.id === itemId);
+        
+        if (itemIndex === -1) {
+          sendJson(res, 404, { error: "Best seller item not found" });
+          return;
+        }
+        
+        bestsellers[itemIndex] = { ...bestsellers[itemIndex], ...updatedItem };
+        await writeJson(BESTSELLERS_FILE, bestsellers);
+        sendJson(res, 200, { ok: true, item: bestsellers[itemIndex] });
+      }
       return;
     }
 
@@ -597,17 +828,23 @@ const server = http.createServer(async (req, res) => {
         return;
       }
       const itemId = pathname.split("/").pop();
-      const bestsellers = await readJson(BESTSELLERS_FILE, DEFAULT_BESTSELLERS);
-      const itemIndex = bestsellers.findIndex((item) => item.id === itemId);
       
-      if (itemIndex === -1) {
-        sendJson(res, 404, { error: "Best seller item not found" });
-        return;
+      if (isUsingDatabase) {
+        await dbDeleteBestseller(itemId);
+        sendJson(res, 200, { ok: true });
+      } else {
+        const bestsellers = await readJson(BESTSELLERS_FILE, DEFAULT_BESTSELLERS);
+        const itemIndex = bestsellers.findIndex((item) => item.id === itemId);
+        
+        if (itemIndex === -1) {
+          sendJson(res, 404, { error: "Best seller item not found" });
+          return;
+        }
+        
+        bestsellers.splice(itemIndex, 1);
+        await writeJson(BESTSELLERS_FILE, bestsellers);
+        sendJson(res, 200, { ok: true });
       }
-      
-      bestsellers.splice(itemIndex, 1);
-      await writeJson(BESTSELLERS_FILE, bestsellers);
-      sendJson(res, 200, { ok: true });
       return;
     }
 
@@ -624,7 +861,7 @@ const server = http.createServer(async (req, res) => {
         return;
       }
       
-      const gallery = await readJson(GALLERY_FILE, DEFAULT_GALLERY);
+      const gallery = await getGalleryData();
       const galleryItem = gallery.find((item) => item.id === galleryItemId);
       
       if (!galleryItem) {
@@ -632,9 +869,8 @@ const server = http.createServer(async (req, res) => {
         return;
       }
       
-      const bestsellers = await readJson(BESTSELLERS_FILE, DEFAULT_BESTSELLERS);
+      const bestsellers = await getBestsellersData();
       
-      // Check if already in bestsellers
       if (bestsellers.some(item => item.link === galleryItem.link)) {
         sendJson(res, 400, { error: "Item already in best sellers" });
         return;
@@ -654,9 +890,14 @@ const server = http.createServer(async (req, res) => {
         createdAt: new Date().toISOString()
       };
       
-      bestsellers.unshift(newItem);
-      await writeJson(BESTSELLERS_FILE, bestsellers);
-      sendJson(res, 201, { ok: true, item: newItem });
+      if (isUsingDatabase) {
+        const result = await dbAddBestseller(newItem);
+        sendJson(res, 201, { ok: true, item: result[0] });
+      } else {
+        bestsellers.unshift(newItem);
+        await writeJson(BESTSELLERS_FILE, bestsellers);
+        sendJson(res, 201, { ok: true, item: newItem });
+      }
       return;
     }
 
@@ -671,6 +912,19 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-server.listen(PORT, () => {
-  console.log(`Twin Soul Studio server running on http://localhost:${PORT}`);
-});
+// Initialize database and start server
+async function start() {
+  await initDatabase();
+  
+  server.listen(PORT, () => {
+    console.log(`Twin Soul Studio server running on http://localhost:${PORT}`);
+    if (isUsingDatabase) {
+      console.log("Using PostgreSQL database for data storage");
+    } else {
+      console.log("Using local JSON files for data storage");
+    }
+  });
+}
+
+start();
+

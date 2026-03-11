@@ -24,7 +24,7 @@ const galleryModalTitle = document.getElementById("gallery-modal-title");
 const addGalleryBtn = document.getElementById("add-gallery-btn");
 const syncInstagramBtn = document.getElementById("sync-instagram-btn");
 
-// Best Sellers elements
+// Bestsellers elements
 const bestsellersList = document.getElementById("bestsellers-list");
 const bestsellersNote = document.getElementById("bestsellers-note");
 const bestsellerFormModal = document.getElementById("bestseller-form-modal");
@@ -33,7 +33,6 @@ const bestsellerModalTitle = document.getElementById("bestseller-modal-title");
 const addBestsellerBtn = document.getElementById("add-bestseller-btn");
 
 const repeaters = {
-  
   heroBullets: document.getElementById("hero-bullets"),
   commissionTags: document.getElementById("commission-tags"),
   aboutParagraphs: document.getElementById("about-paragraphs"),
@@ -67,12 +66,11 @@ function setBusy(button, busyLabel, idleLabel, busy) {
 }
 
 function escapeHtml(value) {
-  if (!value) return "";
   return String(value)
-    .replace(/&/g, String.fromCharCode(38))
-    .replace(/</g, String.fromCharCode(60))
-    .replace(/>/g, String.fromCharCode(62))
-    .replace(/"/g, String.fromCharCode(34));
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "<")
+    .replaceAll(">", ">")
+    .replaceAll('"', """);
 }
 
 function cloneSingleValueRow(value = "") {
@@ -251,7 +249,7 @@ function serializeContent() {
   };
 }
 
-// Gallery Management Functions
+// ============ Gallery Management ============
 function renderGallery(gallery) {
   if (!galleryList) return;
   
@@ -260,9 +258,7 @@ function renderGallery(gallery) {
     return;
   }
 
-  galleryList.innerHTML = gallery.map(item => {
-    const link = item.link || "";
-    return `
+  galleryList.innerHTML = gallery.map(item => `
     <div class="gallery-admin-item" data-id="${item.id}">
       <img src="${item.image}" alt="${item.title}" />
       <div class="gallery-admin-info">
@@ -271,15 +267,41 @@ function renderGallery(gallery) {
         <span class="badge badge-type">${item.type}</span>
       </div>
       <div class="gallery-admin-actions">
-        <a href="${link}" target="_blank" class="secondary-btn">View</a>
-        <button type="button" class="secondary-btn" data-mark-bestseller="${item.id}">⭐ Best Seller</button>
-        <button type="button" class="secondary-btn" data-edit-gallery="${item.id}">Edit</button>
-        <button type="button" class="danger-btn" data-delete-gallery="${item.id}">Delete</button>
+        <button type="button" class="secondary-btn btn-sm" data-make-bestseller="${item.id}">★ Best Seller</button>
+        <button type="button" class="secondary-btn btn-sm" data-edit-gallery="${item.id}">Edit</button>
+        <button type="button" class="danger-btn btn-sm" data-delete-gallery="${item.id}">Delete</button>
       </div>
     </div>
-  `}).join("");
+  `).join("");
 
-  // Add event listeners for edit and delete
+  // Event listeners
+  galleryList.querySelectorAll("[data-make-bestseller]").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const item = gallery.find(g => g.id === btn.dataset.makeBestseller);
+      if (item) {
+        try {
+          await request("/api/admin/bestsellers", {
+            method: "POST",
+            body: JSON.stringify({
+              title: item.title,
+              description: item.description,
+              image: item.image,
+              link: item.link,
+              category: "Gallery",
+              badge: "Best Seller",
+              orderCount: item.likes || 0,
+              rating: 4.5
+            })
+          });
+          bestsellersNote.textContent = "Added to Best Sellers!";
+          loadDashboard();
+        } catch (error) {
+          bestsellersNote.textContent = error.message;
+        }
+      }
+    });
+  });
+
   galleryList.querySelectorAll("[data-edit-gallery]").forEach(btn => {
     btn.addEventListener("click", () => {
       const item = gallery.find(g => g.id === btn.dataset.editGallery);
@@ -297,33 +319,6 @@ function renderGallery(gallery) {
         } catch (error) {
           galleryNote.textContent = error.message;
         }
-      }
-    });
-  });
-
-  galleryList.querySelectorAll("[data-mark-bestseller]").forEach(btn => {
-    btn.addEventListener("click", async () => {
-      const item = gallery.find(g => g.id === btn.dataset.markBestseller);
-      if (!item) return;
-      
-      const category = prompt("Enter category (e.g., Home Decor, Jewelry, Keepsakes):", "Custom");
-      if (category === null) return;
-      
-      const price = prompt("Enter price (₹):", "0");
-      if (price === null) return;
-      
-      try {
-        const result = await request("/api/admin/gallery-to-bestseller", {
-          method: "POST",
-          body: JSON.stringify({ 
-            galleryItemId: item.id,
-            category: category,
-            price: parseInt(price) || 0
-          })
-        });
-        galleryNote.textContent = "Added to Best Sellers!";
-      } catch (error) {
-        galleryNote.textContent = error.message;
       }
     });
   });
@@ -351,7 +346,6 @@ function closeGalleryModal() {
   galleryForm.reset();
 }
 
-// Modal event listeners
 if (addGalleryBtn) {
   addGalleryBtn.addEventListener("click", () => openGalleryModal());
 }
@@ -424,7 +418,7 @@ if (syncInstagramBtn) {
   });
 }
 
-// Best Sellers Management Functions
+// ============ Best Sellers Management ============
 function renderBestsellers(bestsellers) {
   if (!bestsellersList) return;
   
@@ -433,26 +427,26 @@ function renderBestsellers(bestsellers) {
     return;
   }
 
-  bestsellersList.innerHTML = bestsellers.map(item => {
-    const link = item.link || "";
-    return `
+  bestsellersList.innerHTML = bestsellers.map(item => `
     <div class="gallery-admin-item" data-id="${item.id}">
-      <img src="${item.image}" alt="${item.title}" />
+      <img src="${item.image || 'assets/image.png'}" alt="${item.title}" />
       <div class="gallery-admin-info">
         <h4>${escapeHtml(item.title)}</h4>
-        <p>₹${item.price} | ${item.orderCount} orders | ⭐ ${item.rating}</p>
-        <span class="badge badge-type">${escapeHtml(item.category)}</span>
-        <span class="badge badge-source">${escapeHtml(item.badge)}</span>
+        <p>${escapeHtml(item.description || '').substring(0, 60)}${item.description && item.description.length > 60 ? '...' : ''}</p>
+        <span class="badge ${item.badge === 'Best Seller' ? 'badge-best' : 'badge-type'}">${item.badge || 'No Badge'}</span>
+        <span>₹${item.price || 0}</span>
+        <span>${item.orderCount || 0} orders</span>
+        <span>★ ${item.rating || 0}</span>
       </div>
       <div class="gallery-admin-actions">
-        <a href="${link}" target="_blank" class="secondary-btn">View</a>
-        <button type="button" class="secondary-btn" data-edit-bestseller="${item.id}">Edit</button>
-        <button type="button" class="danger-btn" data-delete-bestseller="${item.id}">Delete</button>
+        ${item.link ? `<a href="${item.link}" target="_blank" class="secondary-btn btn-sm">View on Instagram</a>` : ''}
+        <button type="button" class="secondary-btn btn-sm" data-edit-bestseller="${item.id}">Edit</button>
+        <button type="button" class="danger-btn btn-sm" data-delete-bestseller="${item.id}">Delete</button>
       </div>
     </div>
-  `}).join("");
+  `).join("");
 
-  // Add event listeners for edit and delete
+  // Event listeners
   bestsellersList.querySelectorAll("[data-edit-bestseller]").forEach(btn => {
     btn.addEventListener("click", () => {
       const item = bestsellers.find(b => b.id === btn.dataset.editBestseller);
@@ -499,7 +493,6 @@ function closeBestsellerModal() {
   bestsellerForm.reset();
 }
 
-// Bestseller modal event listeners
 if (addBestsellerBtn) {
   addBestsellerBtn.addEventListener("click", () => openBestsellerModal());
 }
@@ -551,10 +544,11 @@ if (bestsellerFormModal) {
   });
 }
 
+// ============ Inquiries Management ============
 function renderInquiries(inquiries) {
   inquiriesBody.innerHTML = "";
   if (!inquiries.length) {
-    inquiriesBody.innerHTML = "<tr><td colspan='6'>No inquiries yet.</td></tr>";
+    inquiriesBody.innerHTML = "<tr><td colspan='7'>No inquiries yet.</td></tr>";
     if (overviewInquiries) {
       overviewInquiries.textContent = "0";
     }
@@ -568,20 +562,22 @@ function renderInquiries(inquiries) {
   inquiries.forEach((inquiry) => {
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td>${inquiry.name}</td>
-      <td><a href="mailto:${inquiry.email}">${inquiry.email}</a></td>
-      <td>${inquiry.product}</td>
-      <td>${inquiry.details}</td>
+      <td>${escapeHtml(inquiry.name)}</td>
+      <td><a href="mailto:${escapeHtml(inquiry.email)}">${escapeHtml(inquiry.email)}</a></td>
+      <td>${escapeHtml(inquiry.product)}</td>
+      <td>${escapeHtml(inquiry.details).substring(0, 50)}${inquiry.details && inquiry.details.length > 50 ? '...' : ''}</td>
       <td></td>
       <td>${new Date(inquiry.createdAt).toLocaleString()}</td>
+      <td></td>
     `;
 
+    // Status dropdown
     const select = document.createElement("select");
     select.className = "status-select";
     ["new", "quoted", "in-progress", "closed"].forEach((status) => {
       const option = document.createElement("option");
       option.value = status;
-      option.textContent = status;
+      option.textContent = status.charAt(0).toUpperCase() + status.slice(1).replace('-', ' ');
       option.selected = inquiry.status === status;
       select.appendChild(option);
     });
@@ -599,10 +595,31 @@ function renderInquiries(inquiries) {
     });
 
     row.children[4].appendChild(select);
+    
+    // Delete button
+    const deleteBtn = document.createElement("button");
+    deleteBtn.className = "danger-btn btn-sm";
+    deleteBtn.textContent = "Delete";
+    deleteBtn.addEventListener("click", async () => {
+      if (confirm("Delete this inquiry?")) {
+        try {
+          await request(`/api/admin/inquiries/${inquiry.id}`, { method: "DELETE" });
+          inquiriesNote.textContent = "Inquiry deleted.";
+          loadDashboard();
+        } catch (error) {
+          inquiriesNote.textContent = error.message;
+        }
+      }
+    });
+    
+    const actionCell = row.children[6];
+    actionCell.appendChild(deleteBtn);
+    
     inquiriesBody.appendChild(row);
   });
 }
 
+// ============ Form & Button Events ============
 document.querySelectorAll("[data-add-row]").forEach((button) => {
   button.addEventListener("click", () => {
     switch (button.dataset.addRow) {
@@ -701,7 +718,6 @@ async function loadDashboard() {
   renderInquiries(data.inquiries);
   renderGallery(data.gallery || []);
   renderBestsellers(data.bestsellers || []);
-  
   if (overviewNotifications) {
     overviewNotifications.textContent = String(data.notifications.filter((item) => item.active).length);
   }
@@ -725,3 +741,4 @@ async function bootstrap() {
 }
 
 bootstrap();
+
