@@ -11,7 +11,13 @@ const DATA_DIR = path.join(ROOT, "data");
 const SITE_CONTENT_FILE = path.join(DATA_DIR, "site-content.json");
 const NOTIFICATIONS_FILE = path.join(DATA_DIR, "notifications.json");
 const INQUIRIES_FILE = path.join(DATA_DIR, "inquiries.json");
+const GALLERY_FILE = path.join(DATA_DIR, "gallery.json");
+const BESTSELLERS_FILE = path.join(DATA_DIR, "bestsellers.json");
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "change-me";
+
+// Instagram API Configuration
+const INSTAGRAM_ACCESS_TOKEN = process.env.INSTAGRAM_ACCESS_TOKEN || "";
+const INSTAGRAM_API_URL = "https://graph.instagram.com";
 const sessions = new Map();
 
 const MIME_TYPES = {
@@ -28,6 +34,8 @@ const MIME_TYPES = {
 
 const DEFAULT_SITE_CONTENT = JSON.parse(fs.readFileSync(SITE_CONTENT_FILE, "utf8"));
 const DEFAULT_NOTIFICATIONS = JSON.parse(fs.readFileSync(NOTIFICATIONS_FILE, "utf8"));
+const DEFAULT_GALLERY = JSON.parse(fs.readFileSync(GALLERY_FILE, "utf8"));
+const DEFAULT_BESTSELLERS = JSON.parse(fs.readFileSync(BESTSELLERS_FILE, "utf8"));
 
 function ensureFile(filePath, fallback) {
   if (!fs.existsSync(filePath)) {
@@ -304,13 +312,15 @@ const server = http.createServer(async (req, res) => {
         return;
       }
 
-      const [siteContent, notifications, inquiries] = await Promise.all([
+      const [siteContent, notifications, inquiries, gallery, bestsellers] = await Promise.all([
         readJson(SITE_CONTENT_FILE, DEFAULT_SITE_CONTENT),
         readJson(NOTIFICATIONS_FILE, DEFAULT_NOTIFICATIONS),
-        readJson(INQUIRIES_FILE, [])
+        readJson(INQUIRIES_FILE, []),
+        readJson(GALLERY_FILE, DEFAULT_GALLERY),
+        readJson(BESTSELLERS_FILE, DEFAULT_BESTSELLERS)
       ]);
 
-      sendJson(res, 200, { siteContent, notifications, inquiries });
+      sendJson(res, 200, { siteContent, notifications, inquiries, gallery, bestsellers });
       return;
     }
 
@@ -355,6 +365,298 @@ const server = http.createServer(async (req, res) => {
       inquiry.status = String(body.status || inquiry.status);
       await writeJson(INQUIRIES_FILE, inquiries);
       sendJson(res, 200, { ok: true, inquiry });
+      return;
+    }
+
+    // Gallery API endpoints
+    if (req.method === "GET" && pathname === "/api/gallery") {
+      const gallery = await readJson(GALLERY_FILE, DEFAULT_GALLERY);
+      sendJson(res, 200, gallery);
+      return;
+    }
+
+    if (req.method === "GET" && pathname === "/api/admin/gallery") {
+      if (!requireAuth(req, res)) {
+        return;
+      }
+      const gallery = await readJson(GALLERY_FILE, DEFAULT_GALLERY);
+      sendJson(res, 200, gallery);
+      return;
+    }
+
+    if (req.method === "POST" && pathname === "/api/admin/gallery") {
+      if (!requireAuth(req, res)) {
+        return;
+      }
+      const body = await readBody(req);
+      const gallery = await readJson(GALLERY_FILE, DEFAULT_GALLERY);
+      
+      const newItem = {
+        id: crypto.randomUUID(),
+        image: String(body.image || "").trim(),
+        title: String(body.title || "").trim(),
+        description: String(body.description || "").trim(),
+        type: ["photo", "reel"].includes(body.type) ? body.type : "photo",
+        likes: Number(body.likes) || 0,
+        comments: Number(body.comments) || 0,
+        link: String(body.link || "").trim(),
+        createdAt: new Date().toISOString()
+      };
+      
+      gallery.unshift(newItem);
+      await writeJson(GALLERY_FILE, gallery);
+      sendJson(res, 201, { ok: true, item: newItem });
+      return;
+    }
+
+    if (req.method === "PUT" && pathname.startsWith("/api/admin/gallery/")) {
+      if (!requireAuth(req, res)) {
+        return;
+      }
+      const itemId = pathname.split("/").pop();
+      const body = await readBody(req);
+      const gallery = await readJson(GALLERY_FILE, DEFAULT_GALLERY);
+      const itemIndex = gallery.findIndex((item) => item.id === itemId);
+      
+      if (itemIndex === -1) {
+        sendJson(res, 404, { error: "Gallery item not found" });
+        return;
+      }
+      
+      gallery[itemIndex] = {
+        ...gallery[itemIndex],
+        image: String(body.image || gallery[itemIndex].image).trim(),
+        title: String(body.title || gallery[itemIndex].title).trim(),
+        description: String(body.description || gallery[itemIndex].description).trim(),
+        type: ["photo", "reel"].includes(body.type) ? body.type : gallery[itemIndex].type,
+        likes: Number(body.likes) || gallery[itemIndex].likes || 0,
+        comments: Number(body.comments) || gallery[itemIndex].comments || 0,
+        link: String(body.link || gallery[itemIndex].link).trim()
+      };
+      
+      await writeJson(GALLERY_FILE, gallery);
+      sendJson(res, 200, { ok: true, item: gallery[itemIndex] });
+      return;
+    }
+
+    if (req.method === "DELETE" && pathname.startsWith("/api/admin/gallery/")) {
+      if (!requireAuth(req, res)) {
+        return;
+      }
+      const itemId = pathname.split("/").pop();
+      const gallery = await readJson(GALLERY_FILE, DEFAULT_GALLERY);
+      const itemIndex = gallery.findIndex((item) => item.id === itemId);
+      
+      if (itemIndex === -1) {
+        sendJson(res, 404, { error: "Gallery item not found" });
+        return;
+      }
+      
+      gallery.splice(itemIndex, 1);
+      await writeJson(GALLERY_FILE, gallery);
+      sendJson(res, 200, { ok: true });
+      return;
+    }
+
+    // Instagram Sync endpoint
+    if (req.method === "POST" && pathname === "/api/admin/sync-instagram") {
+      if (!requireAuth(req, res)) {
+        return;
+      }
+      
+      if (!INSTAGRAM_ACCESS_TOKEN) {
+        sendJson(res, 400, { error: "Instagram access token not configured. Set INSTAGRAM_ACCESS_TOKEN environment variable." });
+        return;
+      }
+      
+      try {
+        // Fetch media from Instagram Basic Display API
+        const mediaUrl = `${INSTAGRAM_API_URL}/me/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,like_count,comments_count&access_token=${INSTAGRAM_ACCESS_TOKEN}&limit=25`;
+        
+        const response = await fetch(mediaUrl);
+        if (!response.ok) {
+          throw new Error(`Instagram API error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        if (!data.data || !Array.isArray(data.data)) {
+          throw new Error("Invalid response from Instagram API");
+        }
+        
+        const gallery = await readJson(GALLERY_FILE, DEFAULT_GALLERY);
+        const existingLinks = new Set(gallery.map(item => item.link));
+        
+        let newItemsCount = 0;
+        
+        for (const media of data.data) {
+          if (existingLinks.has(media.permalink)) {
+            continue; // Skip if already exists
+          }
+          
+          const newItem = {
+            id: crypto.randomUUID(),
+            image: media.media_type === "VIDEO" ? (media.thumbnail_url || media.media_url) : media.media_url,
+            title: media.caption ? media.caption.substring(0, 50) : `Instagram ${media.media_type}`,
+            description: media.caption || "",
+            type: media.media_type === "VIDEO" ? "reel" : "photo",
+            likes: media.like_count || 0,
+            comments: media.comments_count || 0,
+            link: media.permalink,
+            createdAt: media.timestamp
+          };
+          
+          gallery.unshift(newItem);
+          newItemsCount++;
+        }
+        
+        await writeJson(GALLERY_FILE, gallery);
+        sendJson(res, 200, { ok: true, message: `Added ${newItemsCount} new items from Instagram`, count: newItemsCount });
+      } catch (error) {
+        sendJson(res, 500, { error: error.message || "Failed to sync from Instagram" });
+      }
+      return;
+    }
+
+    // Best Sellers API endpoints
+    if (req.method === "GET" && pathname === "/api/bestsellers") {
+      const bestsellers = await readJson(BESTSELLERS_FILE, DEFAULT_BESTSELLERS);
+      sendJson(res, 200, bestsellers);
+      return;
+    }
+
+    if (req.method === "GET" && pathname === "/api/admin/bestsellers") {
+      if (!requireAuth(req, res)) {
+        return;
+      }
+      const bestsellers = await readJson(BESTSELLERS_FILE, DEFAULT_BESTSELLERS);
+      sendJson(res, 200, bestsellers);
+      return;
+    }
+
+    if (req.method === "POST" && pathname === "/api/admin/bestsellers") {
+      if (!requireAuth(req, res)) {
+        return;
+      }
+      const body = await readBody(req);
+      const bestsellers = await readJson(BESTSELLERS_FILE, DEFAULT_BESTSELLERS);
+      
+      const newItem = {
+        id: "bs-" + crypto.randomUUID().substring(0, 8),
+        title: String(body.title || "").trim(),
+        description: String(body.description || "").trim(),
+        price: Number(body.price) || 0,
+        image: String(body.image || "").trim(),
+        category: String(body.category || "").trim(),
+        badge: String(body.badge || "Best Seller").trim(),
+        link: String(body.link || "").trim(),
+        orderCount: Number(body.orderCount) || 0,
+        rating: Number(body.rating) || 0,
+        createdAt: new Date().toISOString()
+      };
+      
+      bestsellers.unshift(newItem);
+      await writeJson(BESTSELLERS_FILE, bestsellers);
+      sendJson(res, 201, { ok: true, item: newItem });
+      return;
+    }
+
+    if (req.method === "PUT" && pathname.startsWith("/api/admin/bestsellers/")) {
+      if (!requireAuth(req, res)) {
+        return;
+      }
+      const itemId = pathname.split("/").pop();
+      const body = await readBody(req);
+      const bestsellers = await readJson(BESTSELLERS_FILE, DEFAULT_BESTSELLERS);
+      const itemIndex = bestsellers.findIndex((item) => item.id === itemId);
+      
+      if (itemIndex === -1) {
+        sendJson(res, 404, { error: "Best seller item not found" });
+        return;
+      }
+      
+      bestsellers[itemIndex] = {
+        ...bestsellers[itemIndex],
+        title: String(body.title || bestsellers[itemIndex].title).trim(),
+        description: String(body.description || bestsellers[itemIndex].description).trim(),
+        price: Number(body.price) || bestsellers[itemIndex].price || 0,
+        image: String(body.image || bestsellers[itemIndex].image).trim(),
+        category: String(body.category || bestsellers[itemIndex].category).trim(),
+        badge: String(body.badge || bestsellers[itemIndex].badge).trim(),
+        link: String(body.link || bestsellers[itemIndex].link).trim(),
+        orderCount: Number(body.orderCount) || bestsellers[itemIndex].orderCount || 0,
+        rating: Number(body.rating) || bestsellers[itemIndex].rating || 0
+      };
+      
+      await writeJson(BESTSELLERS_FILE, bestsellers);
+      sendJson(res, 200, { ok: true, item: bestsellers[itemIndex] });
+      return;
+    }
+
+    if (req.method === "DELETE" && pathname.startsWith("/api/admin/bestsellers/")) {
+      if (!requireAuth(req, res)) {
+        return;
+      }
+      const itemId = pathname.split("/").pop();
+      const bestsellers = await readJson(BESTSELLERS_FILE, DEFAULT_BESTSELLERS);
+      const itemIndex = bestsellers.findIndex((item) => item.id === itemId);
+      
+      if (itemIndex === -1) {
+        sendJson(res, 404, { error: "Best seller item not found" });
+        return;
+      }
+      
+      bestsellers.splice(itemIndex, 1);
+      await writeJson(BESTSELLERS_FILE, bestsellers);
+      sendJson(res, 200, { ok: true });
+      return;
+    }
+
+    // Add to Best Sellers from Gallery
+    if (req.method === "POST" && pathname === "/api/admin/gallery-to-bestseller") {
+      if (!requireAuth(req, res)) {
+        return;
+      }
+      const body = await readBody(req);
+      const galleryItemId = body.galleryItemId;
+      
+      if (!galleryItemId) {
+        sendJson(res, 400, { error: "Gallery item ID required" });
+        return;
+      }
+      
+      const gallery = await readJson(GALLERY_FILE, DEFAULT_GALLERY);
+      const galleryItem = gallery.find((item) => item.id === galleryItemId);
+      
+      if (!galleryItem) {
+        sendJson(res, 404, { error: "Gallery item not found" });
+        return;
+      }
+      
+      const bestsellers = await readJson(BESTSELLERS_FILE, DEFAULT_BESTSELLERS);
+      
+      // Check if already in bestsellers
+      if (bestsellers.some(item => item.link === galleryItem.link)) {
+        sendJson(res, 400, { error: "Item already in best sellers" });
+        return;
+      }
+      
+      const newItem = {
+        id: "bs-" + crypto.randomUUID().substring(0, 8),
+        title: galleryItem.title,
+        description: galleryItem.description,
+        price: Number(body.price) || 0,
+        image: galleryItem.image,
+        category: String(body.category || "Custom").trim(),
+        badge: "Best Seller",
+        link: galleryItem.link,
+        orderCount: galleryItem.likes || 0,
+        rating: 4.5,
+        createdAt: new Date().toISOString()
+      };
+      
+      bestsellers.unshift(newItem);
+      await writeJson(BESTSELLERS_FILE, bestsellers);
+      sendJson(res, 201, { ok: true, item: newItem });
       return;
     }
 

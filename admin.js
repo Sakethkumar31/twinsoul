@@ -15,7 +15,25 @@ const overviewSections = document.getElementById("overview-sections");
 const overviewNotifications = document.getElementById("overview-notifications");
 const overviewInquiries = document.getElementById("overview-inquiries");
 
+// Gallery elements
+const galleryList = document.getElementById("gallery-list");
+const galleryNote = document.getElementById("gallery-note");
+const galleryFormModal = document.getElementById("gallery-form-modal");
+const galleryForm = document.getElementById("gallery-form");
+const galleryModalTitle = document.getElementById("gallery-modal-title");
+const addGalleryBtn = document.getElementById("add-gallery-btn");
+const syncInstagramBtn = document.getElementById("sync-instagram-btn");
+
+// Best Sellers elements
+const bestsellersList = document.getElementById("bestsellers-list");
+const bestsellersNote = document.getElementById("bestsellers-note");
+const bestsellerFormModal = document.getElementById("bestseller-form-modal");
+const bestsellerForm = document.getElementById("bestseller-form");
+const bestsellerModalTitle = document.getElementById("bestseller-modal-title");
+const addBestsellerBtn = document.getElementById("add-bestseller-btn");
+
 const repeaters = {
+  
   heroBullets: document.getElementById("hero-bullets"),
   commissionTags: document.getElementById("commission-tags"),
   aboutParagraphs: document.getElementById("about-paragraphs"),
@@ -46,6 +64,15 @@ function setBusy(button, busyLabel, idleLabel, busy) {
   }
   button.disabled = busy;
   button.textContent = busy ? busyLabel : idleLabel;
+}
+
+function escapeHtml(value) {
+  if (!value) return "";
+  return String(value)
+    .replace(/&/g, String.fromCharCode(38))
+    .replace(/</g, String.fromCharCode(60))
+    .replace(/>/g, String.fromCharCode(62))
+    .replace(/"/g, String.fromCharCode(34));
 }
 
 function cloneSingleValueRow(value = "") {
@@ -224,6 +251,306 @@ function serializeContent() {
   };
 }
 
+// Gallery Management Functions
+function renderGallery(gallery) {
+  if (!galleryList) return;
+  
+  if (!gallery || gallery.length === 0) {
+    galleryList.innerHTML = "<p>No highlights yet. Add one or sync from Instagram.</p>";
+    return;
+  }
+
+  galleryList.innerHTML = gallery.map(item => {
+    const link = item.link || "";
+    return `
+    <div class="gallery-admin-item" data-id="${item.id}">
+      <img src="${item.image}" alt="${item.title}" />
+      <div class="gallery-admin-info">
+        <h4>${escapeHtml(item.title)}</h4>
+        <p>${item.likes} likes | ${item.comments} comments</p>
+        <span class="badge badge-type">${item.type}</span>
+      </div>
+      <div class="gallery-admin-actions">
+        <a href="${link}" target="_blank" class="secondary-btn">View</a>
+        <button type="button" class="secondary-btn" data-mark-bestseller="${item.id}">⭐ Best Seller</button>
+        <button type="button" class="secondary-btn" data-edit-gallery="${item.id}">Edit</button>
+        <button type="button" class="danger-btn" data-delete-gallery="${item.id}">Delete</button>
+      </div>
+    </div>
+  `}).join("");
+
+  // Add event listeners for edit and delete
+  galleryList.querySelectorAll("[data-edit-gallery]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const item = gallery.find(g => g.id === btn.dataset.editGallery);
+      if (item) openGalleryModal(item);
+    });
+  });
+
+  galleryList.querySelectorAll("[data-delete-gallery]").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      if (confirm("Are you sure you want to delete this highlight?")) {
+        try {
+          await request(`/api/admin/gallery/${btn.dataset.deleteGallery}`, { method: "DELETE" });
+          galleryNote.textContent = "Highlight deleted.";
+          loadDashboard();
+        } catch (error) {
+          galleryNote.textContent = error.message;
+        }
+      }
+    });
+  });
+
+  galleryList.querySelectorAll("[data-mark-bestseller]").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const item = gallery.find(g => g.id === btn.dataset.markBestseller);
+      if (!item) return;
+      
+      const category = prompt("Enter category (e.g., Home Decor, Jewelry, Keepsakes):", "Custom");
+      if (category === null) return;
+      
+      const price = prompt("Enter price (₹):", "0");
+      if (price === null) return;
+      
+      try {
+        const result = await request("/api/admin/gallery-to-bestseller", {
+          method: "POST",
+          body: JSON.stringify({ 
+            galleryItemId: item.id,
+            category: category,
+            price: parseInt(price) || 0
+          })
+        });
+        galleryNote.textContent = "Added to Best Sellers!";
+      } catch (error) {
+        galleryNote.textContent = error.message;
+      }
+    });
+  });
+}
+
+function openGalleryModal(item = null) {
+  if (!galleryFormModal || !galleryForm) return;
+  
+  galleryModalTitle.textContent = item ? "Edit Highlight" : "Add New Highlight";
+  document.getElementById("gallery-item-id").value = item?.id || "";
+  document.getElementById("gallery-image").value = item?.image || "";
+  document.getElementById("gallery-title").value = item?.title || "";
+  document.getElementById("gallery-description").value = item?.description || "";
+  document.getElementById("gallery-type").value = item?.type || "photo";
+  document.getElementById("gallery-link").value = item?.link || "";
+  document.getElementById("gallery-likes").value = item?.likes || 0;
+  document.getElementById("gallery-comments").value = item?.comments || 0;
+  
+  galleryFormModal.classList.remove("hidden");
+}
+
+function closeGalleryModal() {
+  if (!galleryFormModal) return;
+  galleryFormModal.classList.add("hidden");
+  galleryForm.reset();
+}
+
+// Modal event listeners
+if (addGalleryBtn) {
+  addGalleryBtn.addEventListener("click", () => openGalleryModal());
+}
+
+if (galleryForm) {
+  galleryForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    galleryNote.textContent = "Saving...";
+    
+    const id = document.getElementById("gallery-item-id").value;
+    const data = {
+      image: document.getElementById("gallery-image").value.trim(),
+      title: document.getElementById("gallery-title").value.trim(),
+      description: document.getElementById("gallery-description").value.trim(),
+      type: document.getElementById("gallery-type").value,
+      link: document.getElementById("gallery-link").value.trim(),
+      likes: parseInt(document.getElementById("gallery-likes").value) || 0,
+      comments: parseInt(document.getElementById("gallery-comments").value) || 0
+    };
+
+    try {
+      if (id) {
+        await request(`/api/admin/gallery/${id}`, {
+          method: "PUT",
+          body: JSON.stringify(data)
+        });
+        galleryNote.textContent = "Highlight updated.";
+      } else {
+        await request("/api/admin/gallery", {
+          method: "POST",
+          body: JSON.stringify(data)
+        });
+        galleryNote.textContent = "Highlight added.";
+      }
+      closeGalleryModal();
+      loadDashboard();
+    } catch (error) {
+      galleryNote.textContent = error.message;
+    }
+  });
+}
+
+// Modal close buttons
+document.querySelectorAll(".close-modal, .cancel-modal").forEach(btn => {
+  btn.addEventListener("click", closeGalleryModal);
+});
+
+// Close modal on outside click
+if (galleryFormModal) {
+  galleryFormModal.addEventListener("click", (e) => {
+    if (e.target === galleryFormModal) closeGalleryModal();
+  });
+}
+
+// Sync from Instagram
+if (syncInstagramBtn) {
+  syncInstagramBtn.addEventListener("click", async () => {
+    galleryNote.textContent = "Syncing from Instagram...";
+    setBusy(syncInstagramBtn, "Syncing...", "Sync from Instagram", true);
+    
+    try {
+      const result = await request("/api/admin/sync-instagram", { method: "POST" });
+      galleryNote.textContent = result.message;
+      loadDashboard();
+    } catch (error) {
+      galleryNote.textContent = error.message;
+    } finally {
+      setBusy(syncInstagramBtn, "Syncing...", "Sync from Instagram", false);
+    }
+  });
+}
+
+// Best Sellers Management Functions
+function renderBestsellers(bestsellers) {
+  if (!bestsellersList) return;
+  
+  if (!bestsellers || bestsellers.length === 0) {
+    bestsellersList.innerHTML = "<p>No best sellers yet. Add from gallery or create new.</p>";
+    return;
+  }
+
+  bestsellersList.innerHTML = bestsellers.map(item => {
+    const link = item.link || "";
+    return `
+    <div class="gallery-admin-item" data-id="${item.id}">
+      <img src="${item.image}" alt="${item.title}" />
+      <div class="gallery-admin-info">
+        <h4>${escapeHtml(item.title)}</h4>
+        <p>₹${item.price} | ${item.orderCount} orders | ⭐ ${item.rating}</p>
+        <span class="badge badge-type">${escapeHtml(item.category)}</span>
+        <span class="badge badge-source">${escapeHtml(item.badge)}</span>
+      </div>
+      <div class="gallery-admin-actions">
+        <a href="${link}" target="_blank" class="secondary-btn">View</a>
+        <button type="button" class="secondary-btn" data-edit-bestseller="${item.id}">Edit</button>
+        <button type="button" class="danger-btn" data-delete-bestseller="${item.id}">Delete</button>
+      </div>
+    </div>
+  `}).join("");
+
+  // Add event listeners for edit and delete
+  bestsellersList.querySelectorAll("[data-edit-bestseller]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const item = bestsellers.find(b => b.id === btn.dataset.editBestseller);
+      if (item) openBestsellerModal(item);
+    });
+  });
+
+  bestsellersList.querySelectorAll("[data-delete-bestseller]").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      if (confirm("Are you sure you want to delete this best seller?")) {
+        try {
+          await request(`/api/admin/bestsellers/${btn.dataset.deleteBestseller}`, { method: "DELETE" });
+          bestsellersNote.textContent = "Best seller deleted.";
+          loadDashboard();
+        } catch (error) {
+          bestsellersNote.textContent = error.message;
+        }
+      }
+    });
+  });
+}
+
+function openBestsellerModal(item = null) {
+  if (!bestsellerFormModal || !bestsellerForm) return;
+  
+  bestsellerModalTitle.textContent = item ? "Edit Best Seller" : "Add New Best Seller";
+  document.getElementById("bestseller-item-id").value = item?.id || "";
+  document.getElementById("bestseller-title").value = item?.title || "";
+  document.getElementById("bestseller-description").value = item?.description || "";
+  document.getElementById("bestseller-price").value = item?.price || 0;
+  document.getElementById("bestseller-category").value = item?.category || "";
+  document.getElementById("bestseller-image").value = item?.image || "";
+  document.getElementById("bestseller-badge").value = item?.badge || "Best Seller";
+  document.getElementById("bestseller-link").value = item?.link || "";
+  document.getElementById("bestseller-orders").value = item?.orderCount || 0;
+  document.getElementById("bestseller-rating").value = item?.rating || 4.5;
+  
+  bestsellerFormModal.classList.remove("hidden");
+}
+
+function closeBestsellerModal() {
+  if (!bestsellerFormModal) return;
+  bestsellerFormModal.classList.add("hidden");
+  bestsellerForm.reset();
+}
+
+// Bestseller modal event listeners
+if (addBestsellerBtn) {
+  addBestsellerBtn.addEventListener("click", () => openBestsellerModal());
+}
+
+if (bestsellerForm) {
+  bestsellerForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    bestsellersNote.textContent = "Saving...";
+    
+    const id = document.getElementById("bestseller-item-id").value;
+    const data = {
+      title: document.getElementById("bestseller-title").value.trim(),
+      description: document.getElementById("bestseller-description").value.trim(),
+      price: parseInt(document.getElementById("bestseller-price").value) || 0,
+      category: document.getElementById("bestseller-category").value.trim(),
+      image: document.getElementById("bestseller-image").value.trim(),
+      badge: document.getElementById("bestseller-badge").value,
+      link: document.getElementById("bestseller-link").value.trim(),
+      orderCount: parseInt(document.getElementById("bestseller-orders").value) || 0,
+      rating: parseFloat(document.getElementById("bestseller-rating").value) || 4.5
+    };
+
+    try {
+      if (id) {
+        await request(`/api/admin/bestsellers/${id}`, {
+          method: "PUT",
+          body: JSON.stringify(data)
+        });
+        bestsellersNote.textContent = "Best seller updated.";
+      } else {
+        await request("/api/admin/bestsellers", {
+          method: "POST",
+          body: JSON.stringify(data)
+        });
+        bestsellersNote.textContent = "Best seller added.";
+      }
+      closeBestsellerModal();
+      loadDashboard();
+    } catch (error) {
+      bestsellersNote.textContent = error.message;
+    }
+  });
+}
+
+// Close bestseller modal on outside click
+if (bestsellerFormModal) {
+  bestsellerFormModal.addEventListener("click", (e) => {
+    if (e.target === bestsellerFormModal) closeBestsellerModal();
+  });
+}
+
 function renderInquiries(inquiries) {
   inquiriesBody.innerHTML = "";
   if (!inquiries.length) {
@@ -372,6 +699,9 @@ async function loadDashboard() {
   populateContentForm(data.siteContent);
   setNotificationList(data.notifications);
   renderInquiries(data.inquiries);
+  renderGallery(data.gallery || []);
+  renderBestsellers(data.bestsellers || []);
+  
   if (overviewNotifications) {
     overviewNotifications.textContent = String(data.notifications.filter((item) => item.active).length);
   }

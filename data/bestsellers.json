@@ -1,0 +1,55 @@
+[
+  {
+    "id": "bs-1",
+    "title": "Personalized Resin Name Plate",
+    "description": "Custom name plates with gold flakes and dried flowers",
+    "price": 2500,
+    "image": "assets/insta/highlight-1.jpg",
+    "category": "Home Decor",
+    "badge": "Best Seller",
+    "link": "https://www.instagram.com/p/DVi0UG7j7RI/",
+    "orderCount": 45,
+    "rating": 4.9,
+    "createdAt": "2024-01-15T10:00:00Z"
+  },
+  {
+    "id": "bs-2",
+    "title": "Zodiac Resin Keychain",
+    "description": "Custom zodiac sign keychains with pearls and shimmer",
+    "price": 450,
+    "image": "assets/insta/highlight-2.jpg",
+    "category": "Jewelry",
+    "badge": "Popular",
+    "link": "https://www.instagram.com/p/DVgJdW1DwVl/",
+    "orderCount": 78,
+    "rating": 4.8,
+    "createdAt": "2024-01-14T10:00:00Z"
+  },
+  {
+    "id": "bs-3",
+    "title": "Resin Photo Keychain",
+    "description": "Custom photo keychains to carry memories everywhere",
+    "price": 350,
+    "image": "assets/insta/highlight-3.jpg",
+    "category": "Jewelry",
+    "badge": "Best Seller",
+    "link": "https://www.instagram.com/reel/DVZNbaNE1GK/",
+    "orderCount": 92,
+    "rating": 5.0,
+    "createdAt": "2024-01-13T10:00:00Z"
+  },
+  {
+    "id": "bs-4",
+    "title": "Singapore Memory Frame",
+    "description": "Preserved memories from Singapore with resin art",
+    "price": 3500,
+    "image": "assets/insta/highlight-4.jpg",
+    "category": "Keepsakes",
+    "badge": "Best Seller",
+    "link": "https://www.instagram.com/p/DVTsb25D8VB/",
+    "orderCount": 34,
+    "rating": 4.9,
+    "createdAt": "2024-01-12T10:00:00Z"
+  }
+]
+

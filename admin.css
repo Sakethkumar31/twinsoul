@@ -328,3 +328,123 @@ button {
     align-items: flex-start;
   }
 }
+
+/* Gallery Admin Styles */
+.panel-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.gallery-admin-list {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.gallery-admin-item {
+  display: grid;
+  grid-template-columns: 80px 1fr auto;
+  gap: 1rem;
+  padding: 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.72);
+  align-items: center;
+}
+
+.gallery-admin-item img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.gallery-admin-info h4 {
+  margin: 0 0 0.3rem;
+  font-size: 1rem;
+}
+
+.gallery-admin-info p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.gallery-admin-info .badge {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-right: 0.5rem;
+}
+
+.gallery-admin-info .badge-type {
+  background: rgba(19, 111, 125, 0.12);
+  color: var(--brand);
+}
+
+.gallery-admin-info .badge-source {
+  background: rgba(243, 209, 170, 0.4);
+  color: #8a6a3a;
+}
+
+.gallery-admin-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+/* Modal Styles */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-content {
+  background: var(--panel-strong);
+  border-radius: 24px;
+  padding: 1.5rem;
+  width: min(520px, 94%);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.close-modal {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.btn-secondary {
+  background: var(--panel-strong);
+  color: var(--text);
+  border: 1px solid var(--line);
+}

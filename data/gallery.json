@@ -1,0 +1,135 @@
+[
+  {
+    "id": "1",
+    "image": "assets/insta/highlight-1.jpg",
+    "title": "Instagram Post #1",
+    "description": "A frame that shines like a mirror and holds memories forever. This handmade heart resin frame is crafted w...",
+    "type": "photo",
+    "likes": 27,
+    "comments": 2,
+    "link": "https://www.instagram.com/p/DVi0UG7j7RI/",
+    "createdAt": "2024-01-15T10:00:00Z"
+  },
+  {
+    "id": "2",
+    "image": "assets/insta/highlight-2.jpg",
+    "title": "Instagram Post #2",
+    "description": "Scorpio Zodiac Resin Keychain. For the bold, passionate, and mysterious Scorpio souls. Carry your zodiac...",
+    "type": "photo",
+    "likes": 18,
+    "comments": 0,
+    "link": "https://www.instagram.com/p/DVgJdW1DwVl/",
+    "createdAt": "2024-01-14T10:00:00Z"
+  },
+  {
+    "id": "3",
+    "image": "assets/insta/highlight-3.jpg",
+    "title": "Instagram Post #3",
+    "description": "Carry Your Memories Everywhere. A beautiful custom resin photo keychain made with love. Personalized wit...",
+    "type": "reel",
+    "likes": 14,
+    "comments": 0,
+    "link": "https://www.instagram.com/reel/DVZNbaNE1GK/",
+    "createdAt": "2024-01-13T10:00:00Z"
+  },
+  {
+    "id": "4",
+    "image": "assets/insta/highlight-4.jpg",
+    "title": "Instagram Post #4",
+    "description": "Agastya's Singapore Memory. Some memories are too special to stay in a phone gallery. So we preserved th...",
+    "type": "photo",
+    "likes": 31,
+    "comments": 2,
+    "link": "https://www.instagram.com/p/DVTsb25D8VB/",
+    "createdAt": "2024-01-12T10:00:00Z"
+  },
+  {
+    "id": "5",
+    "image": "assets/insta/highlight-5.jpg",
+    "title": "Instagram Post #5",
+    "description": "Appudu Appudu vasthai bro. Okka roju Iragateesthamu",
+    "type": "reel",
+    "likes": 19,
+    "comments": 4,
+    "link": "https://www.instagram.com/reel/DVMZe1Wk8-g/",
+    "createdAt": "2024-01-11T10:00:00Z"
+  },
+  {
+    "id": "6",
+    "image": "assets/insta/highlight-6.jpg",
+    "title": "Instagram Post #6",
+    "description": "Golden shimmer, delicate pearls & a touch of dried floral beauty. Personalised resin alphabet keychains made...",
+    "type": "photo",
+    "likes": 21,
+    "comments": 0,
+    "link": "https://www.instagram.com/p/DVMYOSok8x6/",
+    "createdAt": "2024-01-10T10:00:00Z"
+  },
+  {
+    "id": "7",
+    "image": "assets/insta/highlight-7.jpg",
+    "title": "Instagram Post #7",
+    "description": "Personalised Resin Alphabet Keychain. Handcrafted with love, gold flakes & dreamy pastel shades. Carry yo...",
+    "type": "photo",
+    "likes": 16,
+    "comments": 0,
+    "link": "https://www.instagram.com/p/DU8Kf9fj6cP/",
+    "createdAt": "2024-01-09T10:00:00Z"
+  },
+  {
+    "id": "8",
+    "image": "assets/insta/highlight-8.jpg",
+    "title": "Instagram Post #8",
+    "description": "One more happy client, one more beautiful frame delivered. Your support means everything to our small busi...",
+    "type": "photo",
+    "likes": 24,
+    "comments": 0,
+    "link": "https://www.instagram.com/p/DU3uqf_CBG0/",
+    "createdAt": "2024-01-08T10:00:00Z"
+  },
+  {
+    "id": "9",
+    "image": "assets/insta/highlight-9.jpg",
+    "title": "Instagram Post #9",
+    "description": "Divine blessings in every detail. This handcrafted Ganesh Ji art piece is designed for multipurpose use. Per...",
+    "type": "photo",
+    "likes": 22,
+    "comments": 0,
+    "link": "https://www.instagram.com/p/DUqzxLmkwdZ/",
+    "createdAt": "2024-01-07T10:00:00Z"
+  },
+  {
+    "id": "10",
+    "image": "assets/insta/highlight-10.jpg",
+    "title": "Instagram Post #10",
+    "description": "Made with patience, poured with peace. #resinart #twinsoulstudiobyks",
+    "type": "photo",
+    "likes": 17,
+    "comments": 3,
+    "link": "https://www.instagram.com/p/DUYod83iMmJ/",
+    "createdAt": "2024-01-06T10:00:00Z"
+  },
+  {
+    "id": "11",
+    "image": "assets/insta/highlight-11.jpg",
+    "title": "Instagram Post #11",
+    "description": "Some memories deserve to be preserved forever. Handcrafted resin frame with pearls, florals & sparkle. Beca...",
+    "type": "photo",
+    "likes": 31,
+    "comments": 3,
+    "link": "https://www.instagram.com/p/DUS4wPqCMjA/",
+    "createdAt": "2024-01-05T10:00:00Z"
+  },
+  {
+    "id": "12",
+    "image": "assets/insta/highlight-12.jpg",
+    "title": "Instagram Post #12",
+    "description": "Work in progress: pouring calm, shaping waves. #resinart #resinartist #resinpour #epoxyresin #resinwaves...",
+    "type": "photo",
+    "likes": 25,
+    "comments": 1,
+    "link": "https://www.instagram.com/p/DUObN22E6OG/",
+    "createdAt": "2024-01-04T10:00:00Z"
+  }
+]
+

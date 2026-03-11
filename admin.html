@@ -64,6 +64,8 @@
 
       <nav class="section-nav" aria-label="Admin sections">
         <a href="#content-panel">Website text</a>
+        <a href="#gallery-panel">Studio Highlights</a>
+        <a href="#bestsellers-panel">Best Sellers</a>
         <a href="#notifications-panel">Announcements</a>
         <a href="#inquiries-panel">Customer requests</a>
       </nav>
@@ -166,6 +168,105 @@
 
             <p class="status-note" id="content-note"></p>
           </form>
+        </section>
+
+        <section class="panel-card" id="gallery-panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Studio Highlights</p>
+              <h2>Manage gallery</h2>
+              <p class="helper-copy">Add, edit, or remove studio highlights. You can also sync directly from Instagram.</p>
+            </div>
+            <div class="panel-actions">
+              <button id="sync-instagram-btn" type="button" class="secondary-btn">Sync from Instagram</button>
+              <button id="add-gallery-btn" type="button" class="secondary-btn">Add New</button>
+            </div>
+          </div>
+          
+          <div id="gallery-list" class="gallery-admin-list"></div>
+          <p class="status-note" id="gallery-note"></p>
+          
+          <!-- Add/Edit Form Modal -->
+          <div id="gallery-form-modal" class="modal hidden">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h3 id="gallery-modal-title">Add New Highlight</h3>
+                <button type="button" class="close-modal">&times;</button>
+              </div>
+              <form id="gallery-form">
+                <input type="hidden" id="gallery-item-id" />
+                <label>Image Path<input type="text" id="gallery-image" placeholder="assets/insta/highlight-1.jpg" required /></label>
+                <label>Title<input type="text" id="gallery-title" required /></label>
+                <label>Description<textarea id="gallery-description" rows="3"></textarea></label>
+                <div class="two-col">
+                  <label>Type<select id="gallery-type">
+                    <option value="photo">Photo</option>
+                    <option value="reel">Reel</option>
+                  </select></label>
+                  <label>Instagram Link<input type="url" id="gallery-link" placeholder="https://www.instagram.com/p/..." required /></label>
+                </div>
+                <div class="two-col">
+                  <label>Likes<input type="number" id="gallery-likes" value="0" /></label>
+                  <label>Comments<input type="number" id="gallery-comments" value="0" /></label>
+                </div>
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-primary">Save</button>
+                  <button type="button" class="btn btn-secondary cancel-modal">Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel-card" id="bestsellers-panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Best Sellers</p>
+              <h2>Manage best sellers</h2>
+              <p class="helper-copy">Showcase your top products. Add from gallery or create new.</p>
+            </div>
+            <button id="add-bestseller-btn" type="button" class="secondary-btn">Add New</button>
+          </div>
+          
+          <div id="bestsellers-list" class="gallery-admin-list"></div>
+          <p class="status-note" id="bestsellers-note"></p>
+          
+          <!-- Add/Edit Best Seller Modal -->
+          <div id="bestseller-form-modal" class="modal hidden">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h3 id="bestseller-modal-title">Add New Best Seller</h3>
+                <button type="button" class="close-modal">&times;</button>
+              </div>
+              <form id="bestseller-form">
+                <input type="hidden" id="bestseller-item-id" />
+                <label>Title<input type="text" id="bestseller-title" required /></label>
+                <label>Description<textarea id="bestseller-description" rows="3"></textarea></label>
+                <div class="two-col">
+                  <label>Price (₹)<input type="number" id="bestseller-price" value="0" /></label>
+                  <label>Category<input type="text" id="bestseller-category" placeholder="Home Decor, Jewelry, etc." /></label>
+                </div>
+                <div class="two-col">
+                  <label>Image Path<input type="text" id="bestseller-image" placeholder="assets/insta/highlight-1.jpg" /></label>
+                  <label>Badge<select id="bestseller-badge">
+                    <option value="Best Seller">Best Seller</option>
+                    <option value="Popular">Popular</option>
+                    <option value="New">New</option>
+                    <option value="Limited">Limited</option>
+                  </select></label>
+                </div>
+                <label>Instagram Link<input type="url" id="bestseller-link" placeholder="https://www.instagram.com/p/..." /></label>
+                <div class="two-col">
+                  <label>Order Count<input type="number" id="bestseller-orders" value="0" /></label>
+                  <label>Rating<input type="number" id="bestseller-rating" step="0.1" max="5" value="4.5" /></label>
+                </div>
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-primary">Save</button>
+                  <button type="button" class="btn btn-secondary cancel-modal">Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
         </section>
 
         <section class="panel-card" id="notifications-panel">

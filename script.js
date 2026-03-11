@@ -8,6 +8,7 @@ const galleryPostsGrid = document.getElementById("gallery-posts-grid");
 const galleryReelsGrid = document.getElementById("gallery-reels-grid");
 const galleryPostsGroup = document.getElementById("gallery-posts-group");
 const galleryReelsGroup = document.getElementById("gallery-reels-group");
+const bestsellersGrid = document.getElementById("bestsellers-grid");
 
 function setText(id, value) {
   const node = document.getElementById(id);
@@ -215,6 +216,44 @@ function separateGallerySections() {
   }
 }
 
+async function loadBestsellers() {
+  if (!bestsellersGrid) {
+    return;
+  }
+  
+  try {
+    const bestsellers = await fetchJson("/api/bestsellers");
+    if (!bestsellers || bestsellers.length === 0) {
+      const bsSection = document.getElementById("bestsellers");
+      if (bsSection) {
+        bsSection.classList.add("hidden");
+      }
+      return;
+    }
+    
+    bestsellersGrid.innerHTML = bestsellers.map(item => `
+      <article class="art-card">
+        <img class="art-media" src="${item.image}" alt="${escapeHtml(item.title)}" loading="lazy" />
+        <div class="card-tags">
+          <span class="badge badge-type">${escapeHtml(item.category)}</span>
+          <span class="badge badge-source">${escapeHtml(item.badge)}</span>
+        </div>
+        <h3>${escapeHtml(item.title)}</h3>
+        <p>${escapeHtml(item.description)}</p>
+        <div class="card-metrics">
+          <span><strong>₹${item.price}</strong></span>
+          <span><strong>${item.orderCount}</strong> orders</span>
+          <span>⭐ ${item.rating}</span>
+        </div>
+        ${item.link ? `<a class="meta-link" href="${item.link}" target="_blank" rel="noopener noreferrer">View on Instagram</a>` : ''}
+      </article>
+    `).join("");
+  } catch (error) {
+    console.error("Failed to load bestsellers:", error);
+  }
+}
+
 separateGallerySections();
 loadSiteContent();
 loadNotifications();
+loadBestsellers();
